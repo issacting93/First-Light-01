@@ -1,33 +1,33 @@
 import { HexagonConfig } from './HexagonGrid';
 
-// Define the hexagon configurations for expanded state
+// Define the hexagon configurations for expanded state (using hardcoded positions for precise layout)
 export const expandedHexagons: HexagonConfig[] = [
   {
     id: 'again-top',
     label: 'again',
     type: 'outline',
-    position: { x: 0, y: -80 },
+    position: { x: 0, y: -100 },
     labelPosition: 'top'
   },
   {
     id: 'word',
     label: 'word',
     type: 'filled',
-    position: { x: -121, y: 0 },
+    position: { x: -130, y: 0 },
     labelPosition: 'left'
   },
   {
     id: 'loop',
     label: 'loop',
     type: 'outline',
-    position: { x: 121, y: 0 },
+    position: { x: 130, y: 0 },
     labelPosition: 'right'
   },
   {
     id: 'again-bottom',
     label: 'again',
     type: 'outline',
-    position: { x: 0, y: 80 },
+    position: { x: 0, y: 100 },
     labelPosition: 'bottom'
   }
 ];
@@ -80,14 +80,14 @@ export function createDynamicHexagons(_meanings: string[], correctMeaning?: stri
     return collapsedHexagons;
   }
 
-  // Use circular positions for dynamic meanings
+  // Use circular positions for dynamic meanings (hardcoded for precise circular layout)
   const circularPositions = [
-    { x: 0, y: -80, labelPosition: 'top' as const },
-    { x: 69, y: -40, labelPosition: 'right' as const },
-    { x: 69, y: 40, labelPosition: 'right' as const },
-    { x: 0, y: 80, labelPosition: 'bottom' as const },
-    { x: -69, y: 40, labelPosition: 'left' as const },
-    { x: -69, y: -40, labelPosition: 'left' as const }
+    { x: -24, y: -114, labelPosition: 'top' as const },      // Top
+    { x: 54, y: -69, labelPosition: 'right' as const },   // Top-right
+    { x: 54, y: 21, labelPosition: 'right' as const },    // Bottom-right
+    { x: -24, y: 66, labelPosition: 'bottom' as const },    // Bottom
+    { x: -102, y: 21, labelPosition: 'left' as const },    // Bottom-left
+    { x: -102, y: -69, labelPosition: 'left' as const }    // Top-left
   ];
 
   // Create a pool of wrong meanings, excluding only the correct answer

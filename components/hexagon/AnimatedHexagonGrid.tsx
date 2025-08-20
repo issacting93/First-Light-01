@@ -59,7 +59,7 @@ function AnimatedHexagon({
             fill="none"
           />
           <circle
-            cx="20"
+            cx="18"
             cy="20"
             fill={isSelected ? "#F59E0C" : "#D9D9D9"}
             r="2"
@@ -70,20 +70,61 @@ function AnimatedHexagon({
   };
 
   const getLabelPosition = () => {
-    const baseClasses = "absolute font-['Roboto_Mono:Regular',_sans-serif] font-normal text-white text-[16px] text-nowrap tracking-[0.8px] whitespace-pre";
+    const baseClasses = "absolute font-['Roboto_Mono',_monospace] font-normal text-white text-[14px] text-nowrap tracking-[0.8px] whitespace-nowrap";
     
-    switch (config.labelPosition) {
-      case 'left':
-        return `${baseClasses} right-full mr-2 top-1/2 -translate-y-1/2 text-right`;
-      case 'right':
-        return `${baseClasses} left-full ml-2 top-1/2 -translate-y-1/2 text-left`;
-      case 'top':
-        return `${baseClasses} bottom-full mb-2 left-1/2 -translate-x-1/2 text-center`;
-      case 'bottom':
-        return `${baseClasses} top-full mt-2 left-1/2 -translate-x-1/2 text-center`;
-      default:
-        return `${baseClasses} left-full ml-2 top-1/2 -translate-y-1/2 text-left`;
-    }
+    // Calculate larger circular positions to avoid overlap with hexagons
+    const { x, y } = config.position;
+    const labelRadius = 60; // Distance from hexagon center to text
+    
+    // Calculate normalized direction vector
+    const magnitude = Math.sqrt(x * x + y * y);
+    const normalizedX = magnitude > 0 ? x / magnitude : 0;
+    const normalizedY = magnitude > 0 ? y / magnitude : 0;
+    
+    // Position text further out in the same direction
+    const labelX = normalizedX * labelRadius;
+    const labelY = normalizedY * labelRadius;
+    
+    return `${baseClasses} -translate-x-1/2 -translate-y-1/2 text-center`;
+  };
+  
+  const getLabelStyle = () => {
+    const { x, y } = config.position;
+    
+    // Parametric label positioning - clean, symmetric, and reproducible
+    const CENTER = { left: 24, top: 33.5 };
+    const RADIUS = 53; // push/pull all labels uniformly
+
+    const angles = {
+      top: -90, 'top-right': -30, 'bottom-right': 30,
+      bottom: 90, 'bottom-left': 150, 'top-left': -150
+    };
+
+    const labelPositions = Object.fromEntries(
+      Object.entries(angles).map(([k, deg]) => {
+        const rad = (deg * Math.PI) / 180;
+        return [k, {
+          left: +(CENTER.left + RADIUS * Math.cos(rad)).toFixed(1),
+          top:  +(CENTER.top  + RADIUS * Math.sin(rad)).toFixed(1),
+        }];
+      })
+    );
+    
+    // Determine position based on coordinates
+    let position = 'top';
+    if (x === -24 && y === -114) position = 'top';
+    else if (x === 54 && y === -69) position = 'top-right';
+    else if (x === 54 && y === 21) position = 'bottom-right';
+    else if (x === -24 && y === 66) position = 'bottom';
+    else if (x === -102 && y === 21) position = 'bottom-left';
+    else if (x === -102 && y === -69) position = 'top-left';
+    
+    const labelPos = labelPositions[position] || labelPositions['top'];
+    
+    return {
+      left: `${labelPos.left}px`,
+      top: `${labelPos.top}px`
+    };
   };
 
   const getAnimationDirection = () => {
@@ -99,13 +140,21 @@ function AnimatedHexagon({
   return (
     <motion.div 
       className="absolute"
-      style={{
-        left: `calc(50% + ${config.position.x}px)`,
-        top: `calc(50% + ${config.position.y}px)`,
-        transform: 'translate(-50%, -50%)'
-      }}
+      style={
+        config.position.x === 0 && config.position.y === 0 ? 
+        {
+          left: 'calc(50% - 25px)',
+          top: 'calc(50% - 22px)',
+          transform: 'none'
+        } : 
+        {
+          left: `calc(50% + ${config.position.x}px)`,
+          top: `calc(50% + ${config.position.y}px)`,
+          transform: 'translate(-50%, -50%)'
+        }
+      }
       initial={{ opacity: 0, ...getAnimationDirection() }}
-      animate={{ opacity: 1, x: -17.32, y:-20 }}
+      animate={{ opacity: 1, x: 0, y: 0 }}
       exit={{ opacity: 0, ...getAnimationDirection() }}
       transition={{ duration: 0.4, delay: animationDelay }}
     >
@@ -123,6 +172,7 @@ function AnimatedHexagon({
         </motion.button>
         <motion.div 
           className={getLabelPosition()}
+          style={getLabelStyle()}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -144,29 +194,31 @@ export function AnimatedHexagonGrid({
 }: AnimatedHexagonGridProps) {
   return (
     <motion.div 
-      className={`relative w-full h-full ${className}`}
+      className={`relative w-full h-full flex items-center justify-center ${className}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Center element */}
-      {centerElement && (
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          {centerElement}
-        </div>
-      )}
+      <div className="relative w-full h-full min-w-[300px] min-h-[300px]">
+        {/* Center element */}
+        {centerElement && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            {centerElement}
+          </div>
+        )}
       
       {/* Hexagon selectors */}
-      {hexagons.map((hexagon, index) => (
-        <AnimatedHexagon
-          key={hexagon.id}
-          config={hexagon}
-          isSelected={selectedHexagon === hexagon.id}
-          onClick={() => onHexagonSelect(hexagon.id)}
-          animationDelay={0.1 + (index * 0.1)}
-        />
-      ))}
+        {hexagons.map((hexagon, index) => (
+          <AnimatedHexagon
+            key={hexagon.id}
+            config={hexagon}
+            isSelected={selectedHexagon === hexagon.id}
+            onClick={() => onHexagonSelect(hexagon.id)}
+            animationDelay={0.1 + (index * 0.1)}
+          />
+        ))}
+      </div>
     </motion.div>
   );
 } 

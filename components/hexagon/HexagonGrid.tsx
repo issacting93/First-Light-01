@@ -75,19 +75,19 @@ function Hexagon({
   };
 
   const getLabelPosition = () => {
-    const baseClasses = "absolute font-['Roboto_Mono:Regular',_sans-serif] font-normal text-white text-[16px] text-nowrap tracking-[0.8px] whitespace-pre";
+    const baseClasses = "absolute font-['Roboto_Mono',_monospace] font-normal text-white text-[14px] text-nowrap tracking-[0.8px] whitespace-nowrap";
     
     switch (config.labelPosition) {
       case 'left':
-        return `${baseClasses} right-full mr-2 top-1/2 -translate-y-1/2 text-right`;
+        return `${baseClasses} right-full pr-6 top-1/2 -translate-y-1/2 text-right`;
       case 'right':
-        return `${baseClasses} left-full ml-2 top-1/2 -translate-y-1/2 text-left`;
+        return `${baseClasses} left-full pl-6 top-1/2 -translate-y-1/2 text-left`;
       case 'top':
-        return `${baseClasses} bottom-full mb-2 left-1/2 -translate-x-1/2 text-center`;
+        return `${baseClasses} bottom-full pb-4 left-1/2 -translate-x-1/2 text-center`;
       case 'bottom':
-        return `${baseClasses} top-full mt-2 left-1/2 -translate-x-1/2 text-center`;
+        return `${baseClasses} top-full pt-4 left-1/2 -translate-x-1/2 text-center`;
       default:
-        return `${baseClasses} left-full ml-2 top-1/2 -translate-y-1/2 text-left`;
+        return `${baseClasses} left-full pl-6 top-1/2 -translate-y-1/2 text-left`;
     }
   };
 

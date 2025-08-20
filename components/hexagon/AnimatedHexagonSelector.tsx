@@ -25,7 +25,7 @@ function CollapsedState({
   return (
     <motion.div
       key="collapsed"
-      className="absolute inset-0 flex items-center justify-center"
+      className="w-full h-full flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -61,7 +61,7 @@ function ExpandedState({
   return (
     <motion.div
       key="expanded"
-      className="absolute inset-0 flex items-center justify-center"
+      className="w-full h-full flex items-center justify-center"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

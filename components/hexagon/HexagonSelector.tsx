@@ -63,8 +63,8 @@ function HexagonOption({
   return (
     <div className="absolute contents">
       {/* Label */}
-      <div className={`absolute font-['Roboto_Mono:Regular',_sans-serif] font-normal leading-[0] text-[#ffffff] text-[16px] tracking-[0.8px] ${getLabelPositionClasses()}`}>
-        <p className="adjustLetterSpacing block leading-[20px] whitespace-pre">
+      <div className={`absolute font-['Roboto_Mono',_monospace] font-normal leading-[0] text-[#ffffff] text-[14px] tracking-[0.8px] ${getLabelPositionClasses()}`}>
+        <p className="adjustLetterSpacing block leading-[20px] whitespace-nowrap">
           {option.label}
         </p>
       </div>
