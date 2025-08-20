@@ -1,0 +1,411 @@
+/* BluerayInterface.css - Styles for the React BluerayInterface component */
+
+.blueray-interface {
+  width: 100%;
+  height: 100%;
+}
+
+.blueray-container {
+  display: flex;
+  gap: 8px;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.blueray {
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+  width: 100px;
+  height: 50vh;
+  display: flex;
+  transition: all 0.3s, width 0.5s, margin 0s;
+  border: 0px solid white;
+  transition-timing-function: cubic-bezier(0.8, 0.04, 0.62, 1.02);
+  color: #fff;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Open Sans', sans-serif;
+  cursor: pointer;
+  position: relative;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 4px;
+  overflow: hidden;
+  background-color: black;
+  margin: 0px 8px;
+  flex-shrink: 0;
+}
+
+.blueray:hover {
+  width: 800px;
+}
+
+.blueray.hovered {
+  width: 800px;
+}
+
+.text-title {
+  opacity: 0;
+  transition: 0.6s;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: flex;
+  letter-spacing: 0px;
+  align-items: flex-end;
+  justify-content: flex-start;
+  font-size: 24px;
+  text-align: center;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  text-transform: uppercase;
+  font-weight: 900;
+  color: white;
+  letter-spacing: 1.5px;
+  z-index: 10;
+  padding: 24px;
+  position: absolute;
+  text-wrap: nowrap;
+}
+
+.text-title:hover {
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+}
+
+.title-wrapper {
+  position: relative;
+  max-width: var(--max-width);
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  color: white;
+  margin: auto;
+  align-items: center;
+  padding: 0px;
+}
+
+.title {
+  color: var(--White, #FFF);
+  font-size: 64px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 100%;
+  letter-spacing: -1.92px;
+  text-transform: uppercase;
+  font-family: 'Bebas Neue', sans-serif;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  max-width: 100vw;
+  width: 100%;
+}
+
+.fade-in {
+  animation-delay: 2s;
+  -webkit-animation: fadein 2s;
+  -moz-animation: fadein 2s;
+  -ms-animation: fadein 2s;
+  -o-animation: fadein 2s;
+  animation: fadein 2s;
+}
+
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scroll-open state */
+.blueray.scroll-open {
+  margin: 0px;
+  margin-bottom: 16px;
+  margin-top: 16px;
+  opacity: 1 !important;
+  aspect-ratio: 16 / 9;
+  writing-mode: horizontal-tb !important;
+  display: flex;
+  background: black;
+  animation: grow-progress 500s linear infinite;
+  animation-play-state: paused;
+  animation-delay: calc(var(--scroll) * -1s);
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+  cursor: default !important;
+  height: auto;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  object-fit: cover;
+  max-height: 500px;
+  overflow: hidden;
+  max-width: 100vw;
+  border-radius: 0px !important;
+  width: 100vw;
+}
+
+/* Details-open state */
+.blueray.details-open {
+  width: 100vw !important;
+  top: 0px;
+  border-radius: 0px !important;
+  height: 10vh !important;
+  margin: 0px !important;
+  gap: 0px !important;
+  cursor: default !important;
+  z-index: -1;
+  margin-bottom: 0vh !important;
+}
+
+/* Grow progress animation */
+@keyframes grow-progress {
+  0% {
+    width: 900px;
+    opacity: 1 !important;
+    max-height: 350px;
+    border-radius: 0px;
+    background-position: 50% 30%;
+  }
+
+  15% {
+    width: 100vw;
+    max-height: 400px;
+  }
+
+  70% {
+    width: 100vw;
+    border-radius: 0px;
+  }
+
+  100% {
+    width: 100vw;
+    border-radius: 0px;
+    background-position: 50% 50%;
+  }
+}
+
+/* Close button */
+.close-button {
+  position: fixed;
+  top: var(--button-top-offset, 15vh);
+  right: var(--button-right-offset, calc(85%));
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background: rgba(0, 0, 0, 1);
+  transform: scale(1.1);
+}
+
+/* Video overlay */
+.video-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.video-content video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.video-content .close-button {
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Template styles */
+.template-0,
+.template-01 {
+  padding: 20px;
+  color: white;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
+  margin: 20px;
+}
+
+.template-0 h3,
+.template-01 h3 {
+  margin: 0 0 10px 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+}
+
+.template-0 p,
+.template-01 p {
+  margin: 5px 0;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Responsive design */
+@media screen and (max-width: 1580px) {
+  @keyframes grow-progress {
+    0% {
+      width: 900px;
+      opacity: 1 !important;
+      max-height: 350px;
+      border-radius: 0px;
+      background-position: 50% 30%;
+    }
+
+    15% {
+      width: 100vw;
+    }
+
+    70% {
+      width: 100vw;
+      border-radius: 0px;
+    }
+
+    100% {
+      width: 100vw;
+      border-radius: 0px;
+      background-position: 50% 50%;
+    }
+  }
+}
+
+@media screen and (max-width: 950px) {
+  .title-wrapper {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .text-title {
+    font-size: 20px;
+    opacity: 1;
+    writing-mode: vertical-rl;
+    padding: 0px;
+    text-align: center;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .blueray {
+    width: 40px;
+    height: 400px;
+    min-width: 40px;
+    margin: 4px;
+    max-height: 50vh;
+    background-position: 50% 50%;
+  }
+
+  .title {
+    color: var(--White, #FFF);
+    font-size: 56px;
+    font-style: normal;
+    width: 100%;
+    font-weight: 400;
+    line-height: 100%;
+    letter-spacing: -1.92px;
+    text-transform: uppercase;
+    font-family: 'Bebas Neue', sans-serif;
+    padding: 0px 24px;
+    background: black;
+  }
+
+  .title-wrapper .text-title span {
+    background: black;
+    padding: 8px 2px;
+  }
+
+  @keyframes grow-progress {
+    0% {
+      width: 852px;
+      opacity: 1 !important;
+      border-radius: 0px;
+      background-position: 50% 0%;
+      max-height: 525px;
+    }
+
+    10% {
+      width: 100vw;
+      overflow: clip;
+      border-radius: 0px;
+    }
+
+    20% {
+      width: 100vw;
+      margin-top: -30px;
+      border-radius: 0px;
+    }
+
+    100% {
+      width: 100vw;
+      background-position: 50% 50%;
+      max-height: 500px;
+    }
+  }
+
+  .blueray.scroll-open {
+    margin: 24px;
+    margin-bottom: 150px;
+    width: 100%;
+    position: absolute;
+    opacity: 1 !important;
+    aspect-ratio: 16/9;
+    writing-mode: horizontal-tb !important;
+    display: flex;
+    animation: grow-progress 2000s ease-in infinite;
+    animation-play-state: paused;
+    animation-delay: calc(var(--scroll) * -1s);
+    animation-iteration-count: 1;
+    animation-fill-mode: both;
+    margin: 0px !important;
+    cursor: default !important;
+  }
+}
+
+/* CSS Custom Properties */
+:root {
+  --button-top-offset: 15vh;
+  --button-right-offset: calc(50% + 375px);
+  --max-width: 1200px;
+  --White: #FFF;
+}

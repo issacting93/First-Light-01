@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encounter - GMTKLoop V3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta http-equiv="refresh" content="2; url=https://encounter-phi.vercel.app">
+   
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        @import url("https://fonts.cdnfonts.com/css/thegoodmonolith");
+
+        :root {
+            --bg-color: #080C10;
+            --grid-color: rgba(255, 240, 230, 0.05);
+            --text-primary: #f3ede9;
+            --text-secondary: #c2b8b2;
+            --text-highlight: #ff4e42;
+            --accent-primary: #ff4e42;
+            --accent-secondary: #c2362f;
+            --accent-tertiary: #ffb3ab;
+            --panel-bg: rgba(30, 26, 24, 0.7);
+            --panel-border: rgba(255, 78, 66, 0.3);
+            --panel-highlight: rgba(255, 78, 66, 0.1);
+            --scanner-line: rgba(255, 78, 66, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: "TheGoodMonolith", monospace;
+            overflow: hidden;
+            height: 100vh;
+            text-transform: uppercase;
+            font-size: 1rem;
+        }
+
+        /* Grid overlay background */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(
+                    to right,
+                    var(--grid-color) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Main container */
+        .start-game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Title section */
+        .title-section {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        .main-title {
+            font-family: "TheGoodMonolith", monospace;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: bold;
+            color: var(--accent-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(255, 78, 66, 0.3);
+        }
+
+        .game-description {
+            font-family: "TheGoodMonolith", monospace;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        /* Button section */
+        .button-section {
+            animation: fadeInUp 1.5s ease-out 0.5s both;
+        }
+
+        .start-button {
+            background: var(--accent-primary);
+            border: 2px solid var(--accent-primary);
+            color: var(--bg-color);
+            font-family: "TheGoodMonolith", monospace;
+            font-size: clamp(1rem, 2.5vw, 1.25rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 20px 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        .start-button:hover {
+            background: var(--accent-secondary);
+            border-color: var(--accent-secondary);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 78, 66, 0.4);
+        }
+
+        .start-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Scanner frame effect */
+        .scanner-frame {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            height: 60%;
+            border: 1px solid var(--scanner-line);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .scanner-frame::before,
+        .scanner-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-primary);
+        }
+
+        .scanner-frame::before {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .scanner-frame::after {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Corner decorations */
+        .scanner-frame .corner-tl {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-primary);
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .scanner-frame .corner-tr {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-primary);
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .scanner-frame .corner-bl {
+            position: absolute;
+            bottom: -2px;
+            left: -2px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-primary);
+            border-right: none;
+            border-top: none;
+        }
+
+        .scanner-frame .corner-br {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-primary);
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Scanning line animation */
+        .scanner-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        /* Fade in animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Pulsing glow effect */
+        .pulse-glow {
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                text-shadow: 0 0 20px rgba(255, 78, 66, 0.3);
+            }
+            to {
+                text-shadow: 0 0 30px rgba(255, 78, 66, 0.6);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .title-section {
+                margin-bottom: 40px;
+            }
+            
+            .scanner-frame {
+                width: 90%;
+                height: 70%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .start-button {
+                padding: 15px 30px;
+            }
+            
+            .scanner-frame {
+                width: 95%;
+                height: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Grid overlay background -->
+    <div class="grid-overlay"></div>
+    
+    <!-- Main container -->
+    <div class="start-game-container">
+        <!-- Scanner frame effect -->
+        <div class="scanner-frame">
+            <div class="corner-tl"></div>
+            <div class="corner-tr"></div>
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+            <div class="scanner-line"></div>
+        </div>
+        
+        <!-- Title section -->
+        <div class="title-section">
+        
+            <h1 class="main-title pulse-glow">
+                <a href="https://encounter-phi.vercel.app" class="link-button">
+                    ENCOUNTER
+                </a>
+            </h1>
+            <p class="game-description">Fragments of light and sound.</p>
+        </div>
+        
+        <!-- Button section -->
+        <div class="button-section">
+            <button class="start-button" id="start-game-btn">START GAME</button>
+        </div>
+    </div>
+
+    <script>
+        // Handle start game button click
+        function handleStartGame() {
+            console.log('Start game clicked');
+            
+            // Add fade out effect
+            const container = document.querySelector('.start-game-container');
+            container.style.transition = 'opacity 1s ease-out';
+            container.style.opacity = '0';
+            
+            // After fade out, redirect to main game
+            setTimeout(() => {
+                window.location.href = 'sound-shape-language.html';
+            }, 1000);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handler to start game button
+            document.getElementById('start-game-btn').addEventListener('click', handleStartGame);
+            
+            // Add keyboard support for Enter key
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    handleStartGame();
+                }
+            });
+            
+            // Add some interactive effects
+            const startButton = document.getElementById('start-game-btn');
+            
+            startButton.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+            
+            startButton.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    
+        // Backup redirect in case meta refresh doesn't work
+        setTimeout(function() {
+            window.location.href = 'https://encounter-phi.vercel.app';
+        }, 2000);
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const mainPanel = document.querySelector('.main-panel');
+            
+            // Add hover effect
+            mainPanel.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 30px rgba(255, 78, 66, 0.5)';
+            });
+            
+            mainPanel.addEventListener('mouseleave', function() {
+                this.style.boxShadow = '0 0 15px rgba(255, 78, 66, 0.3)';
+            });
+        });
+    </script>
+</body>
+</html> 

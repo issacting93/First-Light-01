@@ -1,0 +1,114 @@
+{
+  "glyphs": {
+    "personal": {
+      "i": "First person singular - the speaker",
+      "you": "Second person singular - the beloved",
+      "we": "First person plural - collective",
+      "us": "First person plural object",
+      "me": "First person singular object"
+    },
+    "emotion": {
+      "longing": "Deep desire, yearning",
+      "love": "Deep affection, connection",
+      "want": "Desire, wish for",
+      "wanting": "State of desire",
+      "miss": "Feel absence of",
+      "warmth": "Emotional comfort",
+      "feel": "Experience emotion",
+      "grieve": "Deep sorrow",
+      "beautiful": "Aesthetically pleasing"
+    },
+    "light": {
+      "light": "Illumination, brightness",
+      "see": "Visual perception",
+      "stars": "Celestial light sources",
+      "brightness": "Intensity of light",
+      "glow": "Soft light emission",
+      "reflect": "Bounce back light",
+      "gaze": "Look intently",
+      "vision": "Sight, visual ability",
+      "radiance": "Bright light emission"
+    },
+    "sound": {
+      "sound": "Auditory vibration",
+      "sing": "Musical vocalization",
+      "pulse": "Rhythmic beat",
+      "rhythm": "Patterned sound",
+      "breath": "Respiratory sound",
+      "voice": "Vocal sound",
+      "song": "Musical composition",
+      "echo": "Sound reflection",
+      "silence": "Absence of sound"
+    },
+    "form": {
+      "shape": "Physical form",
+      "form": "Structure, arrangement",
+      "live": "Be alive",
+      "life": "Living state",
+      "symbol": "Representation"
+    },
+    "movement": {
+      "far": "Distant location",
+      "reaching": "Extending toward",
+      "arrive": "Reach destination",
+      "chase": "Pursue",
+      "find": "Locate",
+      "escape": "Break free from",
+      "travel": "Move through space",
+      "reach": "Extend to touch"
+    },
+    "time": {
+      "remember": "Recall past",
+      "memory": "Stored experience",
+      "ever": "Always",
+      "forever": "Eternally",
+      "endless": "Without end",
+      "exist": "Be present"
+    },
+    "negation": {
+      "not": "Negative state",
+      "never": "At no time",
+      "opposite": "Contrary to"
+    },
+    "cosmic": {
+      "loop": "Cyclical pattern",
+      "sky": "Upper atmosphere",
+      "world": "Planet, realm",
+      "alignment": "Planetary conjunction",
+      "orbit": "Celestial path"
+    },
+    "endings": {
+      "end": "Termination",
+      "fade": "Gradual disappearance",
+      "time": "Temporal measurement",
+      "mourn": "Grieve loss",
+      "absence": "Lack of presence"
+    },
+    "creatures": {
+      "creature": "Living being"
+    },
+    "actions": {
+      "speak": "Vocal communication",
+      "carry": "Transport",
+      "drift": "Move slowly",
+      "lift": "Raise up",
+      "catch": "Seize, capture",
+      "give": "Provide freely",
+      "bind": "Connect, unite",
+      "hold": "Grasp, contain"
+    }
+  },
+  "clusters": {
+    "personal_pronouns": ["i", "you", "we", "us", "me"],
+    "emotional_states": ["longing", "love", "want", "wanting", "miss", "warmth", "feel", "grieve", "beautiful"],
+    "light_vision": ["light", "see", "stars", "brightness", "glow", "reflect", "gaze", "vision", "radiance"],
+    "sound_audio": ["sound", "sing", "pulse", "rhythm", "breath", "voice", "song", "echo", "silence"],
+    "physical_form": ["shape", "form", "live", "life", "symbol"],
+    "spatial_movement": ["far", "reaching", "arrive", "chase", "find", "escape", "travel", "reach"],
+    "temporal_memory": ["remember", "memory", "ever", "forever", "endless", "exist"],
+    "negation_opposition": ["not", "never", "opposite"],
+    "cosmic_cycles": ["loop", "sky", "world", "alignment", "orbit"],
+    "endings_mortality": ["end", "fade", "time", "mourn", "absence"],
+    "actions_movement": ["speak", "carry", "drift", "lift", "catch", "give", "bind", "hold"]
+  }
+} 

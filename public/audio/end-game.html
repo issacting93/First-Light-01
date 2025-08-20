@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>End Transmission - GMTKLoop V3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #080c10;
+            color: #ffd7d5;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .end-game-container {
+            position: relative;
+            width: 100vw;
+            min-height: 100vh;
+            background-color: #080c10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .header-text {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 400;
+            font-size: clamp(16px, 2.5vw, 24px);
+            line-height: 1.2;
+            color: #f84b40;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: pre;
+        }
+
+        .header-divider {
+            width: 12px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-divider-line {
+            width: 30px;
+            height: 12px;
+            background-color: #f84b40;
+            transform: rotate(270deg);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: flex;
+            flex-direction: row;
+            gap: 40px;
+            width: 100%;
+            max-width: 1400px;
+            flex: 1;
+            position: relative;
+            justify-content: center;
+        }
+
+        /* Scrollable Columns */
+        .scrollable-column {
+            flex: 0 1 500px;
+            min-height: 600px;
+            max-height: 70vh;
+            background-color: rgba(248, 75, 64, 0.08);
+            border: 1px solid rgba(248, 75, 64, 0.8);
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .column-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+        }
+
+        /* Transmission Card */
+        .transmission-card {
+            background-color: rgba(22, 22, 22, 0.85);
+            border-radius: 12px;
+            width: 100%;
+            position: relative;
+            border: 1px solid rgba(246, 15, 15, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .transmission-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(248, 75, 64, 0.2);
+        }
+
+        .transmission-content {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+
+        .transmission-text {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(10px, 1.2vw, 12px);
+            line-height: 1.6;
+            color: #ffd7d5;
+            text-align: left;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .transmission-text p {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .transmission-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .transmission-footer {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: flex-start;
+            justify-content: flex-end;
+            padding: 8px 0;
+            width: 100%;
+        }
+
+        .transmission-id {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 400;
+            font-size: clamp(8px, 1vw, 10px);
+            line-height: 1;
+            color: #f84b40;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: pre;
+        }
+
+        /* Action Button */
+        .action-button {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            max-width: 90vw;
+            background-color: #f84b40;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(248, 75, 64, 0.8);
+            z-index: 100;
+        }
+
+        .action-button:hover {
+            background-color: #e63e33;
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 8px 25px rgba(248, 75, 64, 0.3);
+        }
+
+        .action-button-content {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .action-button-text {
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 700;
+            font-size: clamp(14px, 1.5vw, 16px);
+            line-height: 1;
+            color: #ffd7d5;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            white-space: pre;
+        }
+
+        /* Scrollbar Styling */
+        .column-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .column-content::-webkit-scrollbar-track {
+            background: rgba(248, 75, 64, 0.1);
+            border-radius: 4px;
+        }
+
+        .column-content::-webkit-scrollbar-thumb {
+            background: rgba(248, 75, 64, 0.3);
+            border-radius: 4px;
+        }
+
+        .column-content::-webkit-scrollbar-thumb:hover {
+            background: rgba(248, 75, 64, 0.5);
+        }
+
+        /* Fade in animation */
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .main-content {
+                gap: 30px;
+            }
+            
+            .scrollable-column {
+                max-width: 450px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+                gap: 30px;
+                align-items: center;
+            }
+            
+            .scrollable-column {
+                flex: 0 1 600px;
+                width: 100%;
+                min-height: 400px;
+                max-height: 50vh;
+            }
+            
+            .header {
+                margin-bottom: 30px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .end-game-container {
+                padding: 15px;
+            }
+            
+            .header-content {
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .main-content {
+                gap: 20px;
+            }
+            
+            .scrollable-column {
+                min-height: 350px;
+                max-height: 45vh;
+            }
+            
+            .column-content {
+                padding: 15px;
+                gap: 12px;
+            }
+            
+            .transmission-content {
+                padding: 15px;
+            }
+            
+            .action-button {
+                bottom: 20px;
+                width: 280px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header-text {
+                font-size: 14px;
+            }
+            
+            .transmission-text {
+                font-size: 9px;
+                letter-spacing: 0.6px;
+            }
+            
+            .transmission-id {
+                font-size: 7px;
+            }
+            
+            .action-button {
+                width: 260px;
+            }
+            
+            .action-button-text {
+                font-size: 12px;
+            }
+        }
+
+        /* Ensure content doesn't get hidden behind fixed button */
+        .main-content {
+            padding-bottom: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="end-game-container fade-in">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="header-text">GLYPH</div>
+                <div class="header-divider">
+                    <div class="header-divider-line"></div>
+                </div>
+                <div class="header-text">LAMBDA</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Scrollable Column -->
+            <div class="scrollable-column">
+                <div class="column-content" id="left-column">
+                    <!-- Transmission cards will be generated here -->
+                </div>
+            </div>
+
+            <!-- Right Scrollable Column -->
+            <div class="scrollable-column">
+                <div class="column-content" id="right-column">
+                    <!-- Transmission cards will be generated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="action-button" id="end-transmission-btn">
+            <div class="action-button-content">
+                <div class="action-button-text">END TRANSMISSION</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Glyph transmissions (left column)
+        const glyphTransmissions = [
+            {
+                text: [
+                    "In the hush before first light, I speak.",
+                    "In 90 turns, the sky will carry us near again.",
+                    "Our planets will drift into alignment,",
+                    "and I will lift my gaze to the heavens,",
+                    "hoping to catch the light of yours."
+                ],
+                id: "TRANSMISSION 01"
+            },
+            {
+                text: [
+                    "Light does not come easily to us.",
+                    "We chase it through mist, through vapor,",
+                    "through shadow",
+                    "always a breath too far.",
+                    "We are not creatures of light.",
+                    "We are creatures of memory.",
+                    "And what we remember... is brightness."
+                ],
+                id: "TRANSMISSION 02"
+            },
+            {
+                text: [
+                    "But you,",
+                    "you have never known light.",
+                    "You live in the hush of caves, beneath",
+                    "the world's breath,",
+                    "where vision never finds purchase.",
+                    "And still, you sing.",
+                    "How I missed your singing.",
+                    "The silence aches for it.",
+                    "It curled inward without you."
+                ],
+                id: "TRANSMISSION 03"
+            },
+            {
+                text: [
+                    "I see your voice.",
+                    "It's rhythm, it's shape - how it pules like",
+                    "memory across the void.",
+                    "If only I could hear as you do.",
+                    "But light has never taught us how to listen."
+                ],
+                id: "TRANSMISSION 04"
+            },
+            {
+                text: [
+                    "We are made of opposite matter.",
+                    "You hold the earth in your lungs.",
+                    "I rise with the glow.",
+                    "You sing. I reflect.",
+                    "And yet, our longing arcs between us, a bridge of want."
+                ],
+                id: "TRANSMISSION 05"
+            },
+            {
+                text: [
+                    "You are far. You are unlike.",
+                    "But the wanting makes us the same.",
+                    "And I want you",
+                    "more than I want the light.",
+                    "If only you could see yourself",
+                    "you would know what I see.",
+                    "Even the stars dim to make space for your shape."
+                ],
+                id: "TRANSMISSION 06"
+            },
+            {
+                text: [
+                    "The Loop brings us near every ninety cycles.",
+                    "But my orbit is not endless.",
+                    "My light, my time, will wane."
+                ],
+                id: "TRANSMISSION 07"
+            },
+            {
+                text: [
+                    "They once told me,",
+                    "Light moves faster than sound.",
+                    "But in this world,",
+                    "where you hear and I see,",
+                    "what would reach the other first?",
+                    "Your shimmer, or my echo?"
+                ],
+                id: "TRANSMISSION 08"
+            },
+            {
+                text: [
+                    "What would that mean for our love,",
+                    "If I could escape the shapes of our species?",
+                    "If it could slip from cave and sky,",
+                    "past form, past myth, past expectation?"
+                ],
+                id: "TRANSMISSION 09"
+            },
+            {
+                text: [
+                    "Your kind says: to give light is the highest form of love.",
+                    "But I mourn that.",
+                    "Because what we have,",
+                    "mit cannot be given.",
+                    "It is."
+                ],
+                id: "TRANSMISSION 10"
+            },
+            {
+                text: [
+                    "Perhaps our love will remain unknown to others.",
+                    "But not to us.",
+                    "Never to us.",
+                    "When your song finds me again,",
+                    "I will remember how to see."
+                ],
+                id: "TRANSMISSION 11"
+            }
+        ];
+
+        // Lambda transmissions (right column)
+        const lambdaTransmissions = [
+            {
+                text: [
+                    "I counted the silence between your echoes.",
+                    "Ninety sunless dawns.",
+                    "Each one hummed your absence in low,",
+                    "aching tones."
+                ],
+                id: "TRANSMISSION 01"
+            },
+            {
+                text: [
+                    "YYou say you will catch light,",
+                    "but I am made of reverberations,",
+                    "not radiance.",
+                    "Still, I would trade every rhythm I've ever known",
+                    "to feel the warmth you chase across your sky."
+                ],
+                id: "LAMBDA TRANSMISSION 02"
+            },
+            {
+                text: [
+                    "I do not remember light.",
+                    "My people do not sing of what we have never held.",
+                    "But I remember you,",
+                    "the way your voice flickered at the edge of silence,",
+                    "like a melody finding its way through stone."
+                ],
+                id: "LAMBDA TRANSMISSION 03"
+            },
+            {
+                text: [
+                    "When we met,",
+                    "I did not know what it meant to be heard.",
+                    "Now, every song I make is shaped like",
+                    "your name.",
+                    "Not the glyph of it,",
+                    "but the feeling it leaves in the air after it fades."
+                ],
+                id: "LAMBDA TRANSMISSION 04"
+            },
+            {
+                text: [
+                    "You say you see my voice.",
+                    "I believe you.",
+                    "Your silence has always been louder than my song."
+                ],
+                id: "LAMBDA TRANSMISSION 05"
+            },
+            {
+                text: [
+                    "We live beneath different stars.",
+                    "You rise, I resonate.",
+                    "But longing loops us together",
+                    "a spiral of ache that closes each time our orbits align.",
+                ],
+                id: "LAMBDA TRANSMISSION 06"
+            },
+            {
+                text: [
+                    "Every 90 days, I emerge from stillness",
+                    "and pulse toward the space where your gaze might be.",
+                    "That is how I love:",
+                    "not with vision, but with persistence.",
+                    "Not with beauty, but with resonance."
+                ],
+                id: "LAMBDA TRANSMISSION 07"
+            },
+            {
+                text: [
+                    "You ask which arrives first:",
+                    "your light or my sound?",
+                    "I do not care.",
+                    "I only want to meet you in the middle of the impossible."
+                ],
+                id: "LAMBDA TRANSMISSION 08"
+            },
+            {
+                text: [
+                    "Let them say our love cannot exist.",
+                    "Let them say it breaks form, breaks law,",
+                    "breaks lineage.",
+                    "Let them say light is the highest gift.",
+                ],
+                id: "LAMBDA TRANSMISSION 09"
+            },
+            {
+                text: [
+                    "But you are not made of light.",
+                    "And I am not made of form.",
+                    "We are made of reaching.",
+                    "And I will keep reaching,",
+                    "even if your sky goes dim,",
+                    "even if my voice forgets how to echo."
+                ],
+                id: "LAMBDA TRANSMISSION 10"
+            },
+            {
+                text: [
+                    "Because when the Loop ends,",
+                    "when the translation fails,",
+                    "when all language falls away",
+                    "I will still remember the way you made",
+                    "silence feel full."
+                ],
+                id: "LAMBDA TRANSMISSION 11"
+            }
+        ];
+
+        // Generate transmission cards
+        function createTransmissionCard(transmission) {
+            const card = document.createElement('div');
+            card.className = 'transmission-card';
+            
+            card.innerHTML = `
+                <div class="transmission-content">
+                    <div class="transmission-text">
+                        ${transmission.text.map(line => `<p>${line}</p>`).join('')}
+                    </div>
+                    <div class="transmission-footer">
+                        <div class="transmission-id">${transmission.id}</div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Populate columns with transmission cards
+        function populateColumns() {
+            const leftColumn = document.getElementById('left-column');
+            const rightColumn = document.getElementById('right-column');
+            
+            // Populate left column with Glyph transmissions
+            glyphTransmissions.forEach((transmission) => {
+                const card = createTransmissionCard(transmission);
+                leftColumn.appendChild(card);
+            });
+            
+            // Populate right column with Lambda transmissions
+            lambdaTransmissions.forEach((transmission) => {
+                const card = createTransmissionCard(transmission);
+                rightColumn.appendChild(card);
+            });
+        }
+
+        // Handle end transmission button click
+        function handleEndTransmission() {
+            console.log('End transmission clicked');
+            
+            // Add fade out effect
+            const container = document.querySelector('.end-game-container');
+            container.style.transition = 'opacity 1s ease-out';
+            container.style.opacity = '0';
+            
+            // After fade out, redirect to start game page
+            setTimeout(() => {
+                window.location.href = 'start-game.html';
+            }, 1000);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            populateColumns();
+            
+            // Add click handler to end transmission button
+            document.getElementById('end-transmission-btn').addEventListener('click', handleEndTransmission);
+            
+            // Synchronized scrolling between columns
+            const leftColumn = document.getElementById('left-column');
+            const rightColumn = document.getElementById('right-column');
+            
+            function syncScroll(source, target) {
+                const scrollPercentage = source.scrollTop / (source.scrollHeight - source.clientHeight);
+                const targetScrollTop = scrollPercentage * (target.scrollHeight - target.clientHeight);
+                target.scrollTop = targetScrollTop;
+            }
+            
+            // Add scroll event listeners for synchronized scrolling
+            leftColumn.addEventListener('scroll', function() {
+                syncScroll(leftColumn, rightColumn);
+            });
+            
+            rightColumn.addEventListener('scroll', function() {
+                syncScroll(rightColumn, leftColumn);
+            });
+            
+            // Ensure proper spacing for mobile devices
+            function adjustLayout() {
+                const mainContent = document.querySelector('.main-content');
+                const actionButton = document.getElementById('end-transmission-btn');
+                
+                if (window.innerWidth <= 900) {
+                    // On mobile, ensure content doesn't overlap with fixed button
+                    const buttonHeight = actionButton.offsetHeight;
+                    mainContent.style.paddingBottom = (buttonHeight + 40) + 'px';
+                } else {
+                    mainContent.style.paddingBottom = '120px';
+                }
+            }
+            
+            // Call on load and resize
+            adjustLayout();
+            window.addEventListener('resize', adjustLayout);
+        });
+    </script>
+</body>
+</html> 

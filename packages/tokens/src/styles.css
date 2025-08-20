@@ -1,0 +1,56 @@
+:root {
+  /* Terminal Colors */
+  --terminal-bg: #080C10;
+  --terminal-bg-secondary: #1a1a1a;
+  --terminal-bg-tertiary: #2a2a2a;
+  --terminal-bg-panel: #1e1a18;
+  
+  /* Terminal Text Colors */
+  --terminal-text-primary: #f3ede9;
+  --terminal-text-secondary: #c2b8b2;
+  --terminal-text-muted: #6b7280;
+  
+  /* Terminal Accent Colors */
+  --terminal-accent-primary: #ff4e42;
+  --terminal-accent-secondary: #f84b40;
+  --terminal-accent-tertiary: #cc1d2c;
+  
+  /* Terminal Status Colors */
+  --terminal-warning: #fbbf24;
+  --terminal-error: #ef4444;
+  --terminal-error-dark: #dc2626;
+  --terminal-success: #10b981;
+  
+  /* Terminal Border Colors */
+  --terminal-border: rgba(255, 78, 66, 0.3);
+  --terminal-border-accent: rgba(248, 75, 64, 0.4);
+  --terminal-border-error: rgba(239, 68, 68, 0.3);
+  --terminal-border-muted: rgba(107, 114, 128, 0.2);
+  
+  /* Terminal Font */
+  --terminal-font-family: "TheGoodMonolith", monospace;
+  
+  /* Terminal Font Sizes */
+  --terminal-font-size-xs: 0.75rem;
+  --terminal-font-size-sm: 0.875rem;
+  --terminal-font-size-base: 1rem;
+  --terminal-font-size-lg: 1.125rem;
+  --terminal-font-size-xl: 1.25rem;
+  --terminal-font-size-2xl: 1.5rem;
+  --terminal-font-size-3xl: 1.875rem;
+  
+  /* Terminal Letter Spacing */
+  --terminal-letter-spacing-tight: -0.025em;
+  --terminal-letter-spacing-normal: 0em;
+  --terminal-letter-spacing-wide: 0.025em;
+  --terminal-letter-spacing-wider: 0.05em;
+  --terminal-letter-spacing-widest: 0.1em;
+}
+
+/* Dark mode overrides */
+.dark {
+  --terminal-bg: #000000;
+  --terminal-bg-secondary: #0a0a0a;
+  --terminal-bg-tertiary: #1a1a1a;
+  --terminal-bg-panel: #0f0f0f;
+} 
