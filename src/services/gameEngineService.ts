@@ -520,6 +520,23 @@ export function useGameEngine() {
     });
   }, []);
 
+  const markTransmissionSynchronized = useCallback((transmissionId: string | number) => {
+    setGameState(prev => {
+      const numericId = typeof transmissionId === 'string' ? parseInt(transmissionId) : transmissionId;
+      if (!numericId) return prev;
+      
+      const newSynchronizedTransmissions = new Set([...prev.synchronizedTransmissions, numericId]);
+      
+      console.log(`🎯 Marking transmission ${numericId} as synchronized`);
+      console.log(`📊 Synchronized transmissions:`, Array.from(newSynchronizedTransmissions));
+      
+      return {
+        ...prev,
+        synchronizedTransmissions: newSynchronizedTransmissions
+      };
+    });
+  }, []);
+
   return {
     gameState,
     selectGlyph,
@@ -535,6 +552,7 @@ export function useGameEngine() {
     updateCountdown,
     resetGame,
     checkEndGameCondition, // Add the new function to the return object
+    markTransmissionSynchronized, // Add the new function to mark transmissions as synchronized
     // Debug functions
     debugGlyphUnlocking: () => dataService.debugGlyphUnlocking(),
     forceUnlockAllGlyphs: () => dataService.forceUnlockAllGlyphs()
