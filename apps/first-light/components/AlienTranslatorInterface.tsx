@@ -58,19 +58,31 @@ export default function AlienTranslatorInterface() {
 
   // Wrapper for hexagon selector that converts meaning selection to glyph assignment
   const handleHexagonSelect = useCallback((hexagonId: string) => {
-    if (!gameState?.selectedGlyph) return;
+    if (!gameState?.selectedGlyph || !gameState?.currentTransmission) return;
+    
+    // Check if the current transmission is synchronized (100% complete)
+    const currentTransmissionId = gameState.currentTransmission.id;
+    const numericCurrentId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
+    const isTransmissionSynchronized = numericCurrentId && gameState.synchronizedTransmissions.has(numericCurrentId);
     
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
-      // This is the correct answer, assign the meaning
-      console.log('✅ Correct answer selected:', hexagonId);
-      handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      // Only show correct answer if transmission is synchronized
+      if (isTransmissionSynchronized) {
+        // This is the correct answer, assign the meaning
+        console.log('✅ Correct answer selected:', hexagonId);
+        handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      } else {
+        // Transmission not synchronized yet, don't reveal correct answer
+        console.log('🔒 Transmission not synchronized yet, correct answer hidden');
+        setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION NOT SYNCHRONIZED - COMPLETE THE TRANSMISSION FIRST`)]);
+      }
     } else {
       // This is a wrong answer, don't assign anything
       console.log('❌ Wrong answer selected:', hexagonId);
       setTerminalMessages(prev => [...prev, createTerminalMessage(`INCORRECT SELECTION: "${hexagonId.replace('decoy-', '')}"`)]);
     }
-  }, [gameState?.selectedGlyph, handleAssignMeaning]);
+  }, [gameState?.selectedGlyph, gameState?.currentTransmission, gameState?.synchronizedTransmissions, handleAssignMeaning]);
 
   // Wrapper for modal that matches its expected signature
   const handleModalAssignMeaning = useCallback((meaning: string) => {
