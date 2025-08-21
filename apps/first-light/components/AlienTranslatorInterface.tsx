@@ -37,7 +37,8 @@ export default function AlienTranslatorInterface() {
     selectTransmission,
     assignMeaning,
     nextTransmission,
-    viewTransmission
+    viewTransmission,
+    markTransmissionSynchronized
   } = useGameEngine();
 
   const [terminalMessages, setTerminalMessages] = useState<string[]>(INITIAL_TERMINAL_MESSAGES);
@@ -91,10 +92,15 @@ export default function AlienTranslatorInterface() {
     }
   }, [gameState?.selectedGlyph, handleAssignMeaning]);
 
-  const handleTransmissionComplete = useCallback((_transmission: any, accuracy: number) => {
+  const handleTransmissionComplete = useCallback((transmission: any, accuracy: number) => {
+    // Mark the transmission as synchronized in the game state
+    if (transmission?.id) {
+      markTransmissionSynchronized(transmission.id);
+    }
+    
     // Add terminal message for transmission synchronization
     setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION SYNCHRONIZED - ACCURACY: ${accuracy}%`)]);
-  }, []);
+  }, [markTransmissionSynchronized]);
 
   const handleCloseGlyphModal = useCallback(() => {
     setShowGlyphModal(false);
@@ -203,9 +209,6 @@ export default function AlienTranslatorInterface() {
               selectedGlyph={selectedGlyph}
               className="w-full h-full"
               isTransmissionSynchronized={gameState?.currentTransmission ? 
-                (typeof gameState.currentTransmission.id === 'string' ? 
-                  parseInt(gameState.currentTransmission.id) : 
-                  gameState.currentTransmission.id) && 
                 gameState.synchronizedTransmissions.has(
                   typeof gameState.currentTransmission.id === 'string' ? 
                     parseInt(gameState.currentTransmission.id) : 

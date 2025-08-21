@@ -36,7 +36,8 @@ export default function CombinedInterface() {
     selectTransmission,
     assignMeaning,
     nextTransmission,
-    viewTransmission
+    viewTransmission,
+    markTransmissionSynchronized
   } = useGameEngine();
 
   const [terminalMessages, setTerminalMessages] = useState<string[]>(INITIAL_TERMINAL_MESSAGES);
@@ -69,6 +70,15 @@ export default function CombinedInterface() {
     const numericCurrentId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
     const isTransmissionSynchronized = numericCurrentId && gameState.synchronizedTransmissions.has(numericCurrentId);
     
+    console.log('🎯 Hexagon Selection Debug:', {
+      hexagonId,
+      currentTransmissionId,
+      numericCurrentId,
+      synchronizedTransmissions: Array.from(gameState.synchronizedTransmissions || []),
+      isTransmissionSynchronized,
+      isCorrectAnswer: !hexagonId.startsWith('decoy-')
+    });
+    
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
       // Only show correct answer if transmission is synchronized
@@ -95,10 +105,15 @@ export default function CombinedInterface() {
     }
   }, [gameState?.selectedGlyph, handleAssignMeaning]);
 
-  const handleTransmissionComplete = useCallback((_transmission: any, accuracy: number) => {
+  const handleTransmissionComplete = useCallback((transmission: any, accuracy: number) => {
+    // Mark the transmission as synchronized in the game state
+    if (transmission?.id) {
+      markTransmissionSynchronized(transmission.id);
+    }
+    
     // Add terminal message for transmission synchronization
     setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION SYNCHRONIZED - ACCURACY: ${accuracy}%`)]);
-  }, []);
+  }, [markTransmissionSynchronized]);
 
   const handleCloseGlyphModal = useCallback(() => {
     setShowGlyphModal(false);
@@ -206,16 +221,18 @@ export default function CombinedInterface() {
                   onHexagonSelect={handleHexagonSelect}
                   selectedGlyph={selectedGlyph}
                   className="w-full h-full"
-                  isTransmissionSynchronized={gameState?.currentTransmission ? 
-                    (typeof gameState.currentTransmission.id === 'string' ? 
-                      parseInt(gameState.currentTransmission.id) : 
-                      gameState.currentTransmission.id) && 
-                    gameState.synchronizedTransmissions.has(
-                      typeof gameState.currentTransmission.id === 'string' ? 
-                        parseInt(gameState.currentTransmission.id) : 
-                        gameState.currentTransmission.id
-                    ) : false
-                  }
+                  isTransmissionSynchronized={(() => {
+                    const currentTransmissionId = gameState?.currentTransmission?.id;
+                    const numericId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
+                    const isSync = numericId && gameState?.synchronizedTransmissions?.has(numericId);
+                    console.log('🔍 Sync Debug:', { 
+                      currentTransmissionId, 
+                      numericId, 
+                      synchronizedTransmissions: Array.from(gameState?.synchronizedTransmissions || []),
+                      isSync 
+                    });
+                    return isSync;
+                  })()}
                   correctAnswerId={selectedGlyph?.confirmedMeaning || ""}
                 />
               </div>
