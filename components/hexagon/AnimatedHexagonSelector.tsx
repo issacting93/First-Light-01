@@ -3,7 +3,7 @@ import { AnimatedHexagonGrid } from './AnimatedHexagonGrid';
 import { AnimatedCenterHexagon } from './AnimatedCenterHexagon';
 import { collapsedHexagons, createDynamicHexagons } from './HexagonAnimations';
 import { HexagonConfig } from './HexagonGrid';
-import { type Glyph } from '../../src/services/dataService';
+import { type Glyph } from "@/services/dataService";
 
 
 interface AnimatedHexagonSelectorProps {
@@ -11,16 +11,22 @@ interface AnimatedHexagonSelectorProps {
   onHexagonSelect: (id: string) => void;
   selectedGlyph?: Glyph | null;
   className?: string;
+  isTransmissionSynchronized?: boolean;
+  correctAnswerId?: string;
 }
 
 function CollapsedState({ 
   selectedHexagon, 
   onHexagonSelect,
-  selectedGlyph 
+  selectedGlyph,
+  isTransmissionSynchronized = false,
+  correctAnswerId = ""
 }: { 
   selectedHexagon: string | null;
   onHexagonSelect: (id: string) => void;
   selectedGlyph?: Glyph | null;
+  isTransmissionSynchronized?: boolean;
+  correctAnswerId?: string;
 }) {
   return (
     <motion.div
@@ -36,6 +42,8 @@ function CollapsedState({
         selectedHexagon={selectedHexagon}
         onHexagonSelect={onHexagonSelect}
         isExpanded={false}
+        isTransmissionSynchronized={isTransmissionSynchronized}
+        correctAnswerId={correctAnswerId}
         centerElement={
           <AnimatedCenterHexagon 
             selectedGlyph={selectedGlyph}
@@ -51,12 +59,16 @@ function ExpandedState({
   selectedHexagon, 
   onHexagonSelect,
   selectedGlyph,
-  hexagons
+  hexagons,
+  isTransmissionSynchronized = false,
+  correctAnswerId = ""
 }: { 
   selectedHexagon: string | null;
   onHexagonSelect: (id: string) => void;
   selectedGlyph?: Glyph | null;
   hexagons: HexagonConfig[];
+  isTransmissionSynchronized?: boolean;
+  correctAnswerId?: string;
 }) {
   return (
     <motion.div
@@ -72,6 +84,8 @@ function ExpandedState({
         selectedHexagon={selectedHexagon}
         onHexagonSelect={onHexagonSelect}
         isExpanded={true}
+        isTransmissionSynchronized={isTransmissionSynchronized}
+        correctAnswerId={correctAnswerId}
         centerElement={
           <AnimatedCenterHexagon 
             selectedGlyph={selectedGlyph}
@@ -87,7 +101,9 @@ export function AnimatedHexagonSelector({
   selectedHexagon, 
   onHexagonSelect, 
   selectedGlyph,
-  className = ""
+  className = "",
+  isTransmissionSynchronized = false,
+  correctAnswerId = ""
 }: AnimatedHexagonSelectorProps) {
   // Determine if we should show expanded state
   const isExpanded = !!selectedGlyph;
@@ -107,15 +123,19 @@ export function AnimatedHexagonSelector({
             onHexagonSelect={onHexagonSelect}
             selectedGlyph={selectedGlyph}
             hexagons={hexagons}
+            isTransmissionSynchronized={isTransmissionSynchronized}
+            correctAnswerId={correctAnswerId}
           />
         ) : (
           <CollapsedState 
             selectedHexagon={selectedHexagon}
             onHexagonSelect={onHexagonSelect}
             selectedGlyph={selectedGlyph}
+            isTransmissionSynchronized={isTransmissionSynchronized}
+            correctAnswerId={correctAnswerId}
           />
         )}
       </AnimatePresence>
     </div>
   );
-} 
+}

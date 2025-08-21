@@ -115,7 +115,7 @@ export function createDynamicHexagons(_meanings: string[], correctMeaning?: stri
     const correctHexagon: HexagonConfig = {
       id: correctMeaning,
       label: correctMeaning,
-      type: 'filled' as const,
+      type: 'outline' as const, // Changed from 'filled' to 'outline'
       position: { x: 0, y: 0 }, // Temporary position
       labelPosition: 'top'
     };
@@ -151,8 +151,8 @@ export function createDynamicHexagons(_meanings: string[], correctMeaning?: stri
   // Final shuffle of the hexagons themselves
   const finalHexagons = allHexagons.sort(() => Math.random() - 0.5);
   
-  // Validation: Ensure we have exactly one correct answer
-  const correctHexagons = finalHexagons.filter(h => h.type === 'filled');
+  // Validation: Ensure we have exactly one correct answer (now all are outline type)
+  const correctHexagons = finalHexagons.filter(h => h.id === correctMeaning);
   
   if (correctHexagons.length !== 1) {
     console.error('❌ ERROR: Expected exactly 1 correct answer, got', correctHexagons.length);

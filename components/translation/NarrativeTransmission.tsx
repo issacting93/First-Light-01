@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import type { NarrativeTransmission } from '../../src/services/dataService';
-import dataService from '../../src/services/dataService';
+import type { NarrativeTransmission } from "@/services/dataService";
+import dataService from "@/services/dataService";
 import { Modal } from '../modals';
 import { AnimatedHexagonSelector } from '../hexagon';
 
@@ -64,9 +64,32 @@ export function NarrativeTransmission({
 
   const handleTranslate = () => {
     const confidence = calculateConfidence();
-    // Allow translation even with incomplete progress
-      setShowTranslation(true);
+    
+    // Check if transmission is actually complete (all unlocked glyphs are translated)
+    const isTransmissionComplete = totalUnlockedGlyphs > 0 && translatedUnlockedGlyphs === totalUnlockedGlyphs;
+    
+    console.log('🔍 Transmission Completion Debug:', {
+      totalUnlockedGlyphs,
+      translatedUnlockedGlyphs,
+      isTransmissionComplete,
+      translationState: gameState.translationState,
+      unlockedGlyphItems: unlockedGlyphItems.map(item => ({
+        glyph: item.glyph,
+        isTranslated: item.glyph ? !!gameState.translationState[item.glyph] : false
+      }))
+    });
+    
+    if (isTransmissionComplete) {
+      // Transmission is complete, mark it as synchronized
+      console.log('🎯 Transmission complete! Marking as synchronized');
       onTransmissionComplete?.(transmission, confidence);
+    } else {
+      // Transmission not complete yet
+      console.log('🔒 Transmission not complete yet:', `${translatedUnlockedGlyphs}/${totalUnlockedGlyphs} glyphs translated`);
+    }
+    
+    // Always show translation modal for feedback
+    setShowTranslation(true);
   };
 
   const getGlyphStatus = (glyphId: string) => {
@@ -104,16 +127,33 @@ export function NarrativeTransmission({
     
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
-      // This is the correct answer, assign the meaning
-      console.log('✅ Correct answer selected:', hexagonId);
-      onAssignMeaning(gameState.selectedGlyph, hexagonId);
-      // Clear the selection after assigning meaning
-      onGlyphClick(gameState.selectedGlyph); // Click the same glyph to deselect it
+      // Check if transmission is complete (all unlocked glyphs are translated)
+      const isTransmissionComplete = totalUnlockedGlyphs > 0 && translatedUnlockedGlyphs === totalUnlockedGlyphs;
+      
+      console.log('🎯 Hexagon Selection Debug (NarrativeTransmission):', {
+        hexagonId,
+        totalUnlockedGlyphs,
+        translatedUnlockedGlyphs,
+        isTransmissionComplete,
+        translationState: gameState.translationState
+      });
+      
+      if (isTransmissionComplete) {
+        // This is the correct answer, assign the meaning
+        console.log('✅ Correct answer selected:', hexagonId);
+        onAssignMeaning(gameState.selectedGlyph, hexagonId);
+        // Clear the selection after assigning meaning
+        onGlyphClick(gameState.selectedGlyph); // Click the same glyph to deselect it
+      } else {
+        // Transmission not complete yet, don't reveal correct answer
+        console.log('🔒 Transmission not complete yet, correct answer hidden');
+        // Don't assign meaning or clear selection
+      }
     } else {
       // This is a wrong answer, don't assign anything
       console.log('❌ Wrong answer selected:', hexagonId);
     }
-  }, [gameState?.selectedGlyph, onAssignMeaning, onGlyphClick]);
+  }, [gameState?.selectedGlyph, onAssignMeaning, onGlyphClick, totalUnlockedGlyphs, translatedUnlockedGlyphs]);
 
   const hasUnlockedGlyphs = totalUnlockedGlyphs > 0;
 
@@ -246,6 +286,8 @@ export function NarrativeTransmission({
                       onHexagonSelect={handleHexagonSelect}
                       selectedGlyph={getSelectedGlyph()}
                       className="h-full"
+                      isTransmissionSynchronized={totalUnlockedGlyphs > 0 && translatedUnlockedGlyphs === totalUnlockedGlyphs}
+                      correctAnswerId={getSelectedGlyph()?.confirmedMeaning || ""}
                     />
                   </>
                 ) : (

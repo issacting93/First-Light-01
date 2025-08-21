@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { type Glyph } from '../../src/services/dataService';
+import { type Glyph } from "@/services/dataService";
 
 interface AnimatedCenterHexagonProps {
   selectedGlyph?: Glyph | null;
@@ -16,15 +16,15 @@ export function AnimatedCenterHexagon({ selectedGlyph, isExpanded }: AnimatedCen
       transition={{ duration: 0.4 }}
     >
       {/* Large hexagon outline */}
-      <div className="h-[90px] w-[90px] relative">
+      <div className="h-[90px] w-[90px] relative flex items-center justify-center">
         <svg
           className="block size-full"
           fill="none"
           preserveAspectRatio="none"
-          viewBox="0 0 78 90"
+          viewBox="0 0 100 100"
         >
           <path
-            d="M39 3L75 24V66L39 87L3 66V24L39 3Z"
+            d="M50 3L90 27V73L50 97L10 73V27L50 3Z"
             stroke="white"
             strokeWidth="2"
             fill="none"

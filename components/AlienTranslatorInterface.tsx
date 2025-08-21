@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { TerminalPanel } from "./ui/TerminalPanel";
 import { MessageButton } from "./MessageSidebar";
 import { DictionarySidebar } from "./DictionarySidebar";
 import { TransmissionRenderer } from "./translation/TransmissionRenderer";
@@ -10,7 +9,8 @@ import GlyphLambdaTabs from "./GlyphLambdaTabs";
 import { BackgroundMusic } from "./BackgroundMusic";
 import WelcomeModal from "./WelcomeModal";
 import EncounterStartOverlay from "./EncounterStartOverlay";
-import { useGameEngine } from "../src/services/gameEngineService";
+import { TerminalPanel } from "./ui/TerminalPanel";
+import { useGameEngine } from "@/services/gameEngineService";
 
 // Constants
 const INITIAL_TERMINAL_MESSAGES = [
@@ -38,8 +38,7 @@ export default function AlienTranslatorInterface() {
     assignMeaning,
     nextTransmission,
     viewTransmission,
-    debugGlyphUnlocking,
-    forceUnlockAllGlyphs
+    markTransmissionSynchronized
   } = useGameEngine();
 
   const [terminalMessages, setTerminalMessages] = useState<string[]>(INITIAL_TERMINAL_MESSAGES);
@@ -60,19 +59,31 @@ export default function AlienTranslatorInterface() {
 
   // Wrapper for hexagon selector that converts meaning selection to glyph assignment
   const handleHexagonSelect = useCallback((hexagonId: string) => {
-    if (!gameState?.selectedGlyph) return;
+    if (!gameState?.selectedGlyph || !gameState?.currentTransmission) return;
+    
+    // Check if the current transmission is synchronized (100% complete)
+    const currentTransmissionId = gameState.currentTransmission.id;
+    const numericCurrentId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
+    const isTransmissionSynchronized = numericCurrentId && gameState.synchronizedTransmissions.has(numericCurrentId);
     
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
-      // This is the correct answer, assign the meaning
-      console.log('✅ Correct answer selected:', hexagonId);
-      handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      // Only show correct answer if transmission is synchronized
+      if (isTransmissionSynchronized) {
+        // This is the correct answer, assign the meaning
+        console.log('✅ Correct answer selected:', hexagonId);
+        handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      } else {
+        // Transmission not synchronized yet, don't reveal correct answer
+        console.log('🔒 Transmission not synchronized yet, correct answer hidden');
+        setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION NOT SYNCHRONIZED - COMPLETE THE TRANSMISSION FIRST`)]);
+      }
     } else {
       // This is a wrong answer, don't assign anything
       console.log('❌ Wrong answer selected:', hexagonId);
       setTerminalMessages(prev => [...prev, createTerminalMessage(`INCORRECT SELECTION: "${hexagonId.replace('decoy-', '')}"`)]);
     }
-  }, [gameState?.selectedGlyph, handleAssignMeaning]);
+  }, [gameState?.selectedGlyph, gameState?.currentTransmission, gameState?.synchronizedTransmissions, handleAssignMeaning]);
 
   // Wrapper for modal that matches its expected signature
   const handleModalAssignMeaning = useCallback((meaning: string) => {
@@ -81,10 +92,15 @@ export default function AlienTranslatorInterface() {
     }
   }, [gameState?.selectedGlyph, handleAssignMeaning]);
 
-  const handleTransmissionComplete = useCallback((_transmission: any, accuracy: number) => {
+  const handleTransmissionComplete = useCallback((transmission: any, accuracy: number) => {
+    // Mark the transmission as synchronized in the game state
+    if (transmission?.id) {
+      markTransmissionSynchronized(transmission.id);
+    }
+    
     // Add terminal message for transmission synchronization
     setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION SYNCHRONIZED - ACCURACY: ${accuracy}%`)]);
-  }, []);
+  }, [markTransmissionSynchronized]);
 
   const handleCloseGlyphModal = useCallback(() => {
     setShowGlyphModal(false);
@@ -99,25 +115,6 @@ export default function AlienTranslatorInterface() {
 
   // Get the currently selected glyph for the hexagon selector
   const selectedGlyph = gameState?.selectedGlyph ? gameState.lexicon.get(gameState.selectedGlyph) : null;
-
-  // Expose debug functions globally for testing
-  useEffect(() => {
-    (window as any).debugGlyphUnlocking = debugGlyphUnlocking;
-    (window as any).forceUnlockAllGlyphs = forceUnlockAllGlyphs;
-    (window as any).testUnlockingMechanics = () => {
-      console.log('🧪 Testing unlocking mechanics...');
-      console.log('📊 Current game state:', gameState);
-      console.log('📊 Current lexicon size:', gameState?.lexicon?.size);
-      console.log('📊 Unlocked glyphs in lexicon:', 
-        Array.from(gameState?.lexicon?.entries() || [])
-          .filter(([_, glyph]) => glyph.isUnlocked)
-          .map(([id, _]) => id)
-      );
-    };
-    (window as any).triggerEndGame = () => {
-      window.location.href = '/audio/end-game.html';
-    };
-  }, [debugGlyphUnlocking, forceUnlockAllGlyphs, gameState]);
 
   // Monitor for end game condition
   useEffect(() => {
@@ -211,6 +208,14 @@ export default function AlienTranslatorInterface() {
               onHexagonSelect={handleHexagonSelect}
               selectedGlyph={selectedGlyph}
               className="w-full h-full"
+              isTransmissionSynchronized={gameState?.currentTransmission ? 
+                gameState.synchronizedTransmissions.has(
+                  typeof gameState.currentTransmission.id === 'string' ? 
+                    parseInt(gameState.currentTransmission.id) : 
+                    gameState.currentTransmission.id
+                ) : false
+              }
+              correctAnswerId={selectedGlyph?.confirmedMeaning || ""}
             />
           </div>
 

@@ -10,7 +10,7 @@ import GlyphLambdaTabs from "./GlyphLambdaTabs";
 import { BackgroundMusic } from "./BackgroundMusic";
 import WelcomeModal from "./WelcomeModal";
 import EncounterStartOverlay from "./EncounterStartOverlay";
-import { useGameEngine } from "../src/services/gameEngineService";
+import { useGameEngine } from "@/services/gameEngineService";
 import { SoundShapeLanguage } from "./Lambda/SoundShapeLanguage";
 
 // Constants
@@ -36,7 +36,8 @@ export default function CombinedInterface() {
     selectTransmission,
     assignMeaning,
     nextTransmission,
-    viewTransmission
+    viewTransmission,
+    markTransmissionSynchronized
   } = useGameEngine();
 
   const [terminalMessages, setTerminalMessages] = useState<string[]>(INITIAL_TERMINAL_MESSAGES);
@@ -62,19 +63,40 @@ export default function CombinedInterface() {
 
   // Wrapper for hexagon selector that converts meaning selection to glyph assignment
   const handleHexagonSelect = useCallback((hexagonId: string) => {
-    if (!gameState?.selectedGlyph) return;
+    if (!gameState?.selectedGlyph || !gameState?.currentTransmission) return;
+    
+    // Check if the current transmission is synchronized (100% complete)
+    const currentTransmissionId = gameState.currentTransmission.id;
+    const numericCurrentId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
+    const isTransmissionSynchronized = numericCurrentId && gameState.synchronizedTransmissions.has(numericCurrentId);
+    
+    console.log('🎯 Hexagon Selection Debug:', {
+      hexagonId,
+      currentTransmissionId,
+      numericCurrentId,
+      synchronizedTransmissions: Array.from(gameState.synchronizedTransmissions || []),
+      isTransmissionSynchronized,
+      isCorrectAnswer: !hexagonId.startsWith('decoy-')
+    });
     
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
-      // This is the correct answer, assign the meaning
-      console.log('✅ Correct answer selected:', hexagonId);
-      handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      // Only show correct answer if transmission is synchronized
+      if (isTransmissionSynchronized) {
+        // This is the correct answer, assign the meaning
+        console.log('✅ Correct answer selected:', hexagonId);
+        handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      } else {
+        // Transmission not synchronized yet, don't reveal correct answer
+        console.log('🔒 Transmission not synchronized yet, correct answer hidden');
+        setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION NOT SYNCHRONIZED - COMPLETE THE TRANSMISSION FIRST`)]);
+      }
     } else {
       // This is a wrong answer, don't assign anything
       console.log('❌ Wrong answer selected:', hexagonId);
       setTerminalMessages(prev => [...prev, createTerminalMessage(`INCORRECT SELECTION: "${hexagonId.replace('decoy-', '')}"`)]);
     }
-  }, [gameState?.selectedGlyph, handleAssignMeaning]);
+  }, [gameState?.selectedGlyph, gameState?.currentTransmission, gameState?.synchronizedTransmissions, handleAssignMeaning]);
 
   // Wrapper for modal that matches its expected signature
   const handleModalAssignMeaning = useCallback((meaning: string) => {
@@ -83,10 +105,15 @@ export default function CombinedInterface() {
     }
   }, [gameState?.selectedGlyph, handleAssignMeaning]);
 
-  const handleTransmissionComplete = useCallback((_transmission: any, accuracy: number) => {
+  const handleTransmissionComplete = useCallback((transmission: any, accuracy: number) => {
+    // Mark the transmission as synchronized in the game state
+    if (transmission?.id) {
+      markTransmissionSynchronized(transmission.id);
+    }
+    
     // Add terminal message for transmission synchronization
     setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION SYNCHRONIZED - ACCURACY: ${accuracy}%`)]);
-  }, []);
+  }, [markTransmissionSynchronized]);
 
   const handleCloseGlyphModal = useCallback(() => {
     setShowGlyphModal(false);
@@ -111,42 +138,6 @@ export default function CombinedInterface() {
 
   // Get the currently selected glyph for the hexagon selector
   const selectedGlyph = gameState?.selectedGlyph ? gameState.lexicon.get(gameState.selectedGlyph) : null;
-
-  // Expose debug functions globally for testing
-  // useEffect(() => {
-  //   (window as any).debugGlyphUnlocking = debugGlyphUnlocking;
-  //   (window as any).forceUnlockAllGlyphs = forceUnlockAllGlyphs;
-  //   (window as any).testUnlockingMechanics = () => {
-  //     console.log('🧪 Testing unlocking mechanics...');
-  //     console.log('📊 Current game state:', gameState);
-  //     console.log('📊 Current lexicon size:', gameState?.lexicon?.size);
-  //     console.log('📊 Unlocked glyphs in lexicon:', 
-  //       Array.from(gameState?.lexicon?.entries() || [])
-  //         .filter(([_, glyph]) => glyph.isUnlocked)
-  //         .map(([id, _]) => id)
-  //     );
-  //   };
-  //   (window as any).triggerEndGame = () => {
-  //     window.location.href = '/audio/end-game.html';
-  //   };
-  // }, [debugGlyphUnlocking, forceUnlockAllGlyphs, gameState]);
-
-  // Monitor for end game condition
-  // useEffect(() => {
-  //   const synchronizedCount = gameState?.synchronizedTransmissions?.size || 0;
-  //   const totalTransmissions = gameState?.transmissions?.length || 0;
-    
-  //   if (isEndGameCondition(synchronizedCount, totalTransmissions)) {
-  //     // Add terminal message
-  //     setTerminalMessages(prev => [...prev, createTerminalMessage('🎉 ALL TRANSMISSIONS SYNCHRONIZED!')]);
-  //     setTerminalMessages(prev => [...prev, createTerminalMessage('🚀 INITIATING END GAME SEQUENCE...')]);
-      
-  //     // Add a small delay to allow the UI to update before redirecting
-  //     setTimeout(() => {
-  //       window.location.href = '/audio/end-game.html';
-  //     }, END_GAME_DELAY);
-  //   }
-  // }, [gameState?.synchronizedTransmissions?.size, gameState?.transmissions?.length]);
 
   return (
     <div className="relative w-full h-full overflow-hidden" style={{ 
@@ -230,6 +221,19 @@ export default function CombinedInterface() {
                   onHexagonSelect={handleHexagonSelect}
                   selectedGlyph={selectedGlyph}
                   className="w-full h-full"
+                  isTransmissionSynchronized={(() => {
+                    const currentTransmissionId = gameState?.currentTransmission?.id;
+                    const numericId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
+                    const isSync = numericId && gameState?.synchronizedTransmissions?.has(numericId);
+                    console.log('🔍 Sync Debug:', { 
+                      currentTransmissionId, 
+                      numericId, 
+                      synchronizedTransmissions: Array.from(gameState?.synchronizedTransmissions || []),
+                      isSync 
+                    });
+                    return isSync;
+                  })()}
+                  correctAnswerId={selectedGlyph?.confirmedMeaning || ""}
                 />
               </div>
 

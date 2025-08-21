@@ -9,20 +9,30 @@ interface AnimatedHexagonGridProps {
   centerElement?: React.ReactNode;
   className?: string;
   isExpanded: boolean;
+  isTransmissionSynchronized?: boolean;
+  correctAnswerId?: string;
 }
 
 function AnimatedHexagon({ 
   config, 
   isSelected, 
   onClick,
-  animationDelay = 0
+  animationDelay = 0,
+  isTransmissionSynchronized = false,
+  correctAnswerId = ""
 }: { 
   config: HexagonConfig; 
   isSelected: boolean; 
   onClick: () => void;
   animationDelay?: number;
+  isTransmissionSynchronized?: boolean;
+  correctAnswerId?: string;
 }) {
   const renderHexagonShape = () => {
+    // Determine if this hexagon should show a dot
+    const isCorrectAnswer = config.id === correctAnswerId;
+    const shouldShowDot = isCorrectAnswer ? isTransmissionSynchronized : true;
+    
     if (config.type === 'filled') {
       return (
         <svg
@@ -30,7 +40,7 @@ function AnimatedHexagon({
           fill="none"
           preserveAspectRatio="none"
           viewBox="0 0 36 40"
-          width="36 "
+          width="36"
           height="40"
         >
           <path
@@ -50,20 +60,21 @@ function AnimatedHexagon({
           viewBox="0 0 36 40"
           width="36"
           height="40"
-        > 
-        
+        >
           <path
             d="M35.3203 10V30L18 40L0.679688 30V10L18 0L35.3203 10ZM1.67969 10.5771V29.4219L18 38.8447L34.3203 29.4219V10.5771L18 1.1543L1.67969 10.5771Z"
             stroke="white"
             strokeWidth={isSelected ? "2" : "1"}
             fill="none"
           />
-          <circle
-            cx="18"
-            cy="20"
-            fill={isSelected ? "#F59E0C" : "#D9D9D9"}
-            r="2"
-          />
+          {shouldShowDot && (
+            <circle
+              cx="18"
+              cy="20"
+              fill={isSelected ? "#F59E0C" : "#D9D9D9"}
+              r="2"
+            />
+          )}
         </svg>
       );
     }
@@ -190,7 +201,9 @@ export function AnimatedHexagonGrid({
   selectedHexagon, 
   onHexagonSelect, 
   centerElement,
-  className = ""
+  className = "",
+  isTransmissionSynchronized = false,
+  correctAnswerId = ""
 }: AnimatedHexagonGridProps) {
   return (
     <motion.div 
@@ -216,6 +229,8 @@ export function AnimatedHexagonGrid({
             isSelected={selectedHexagon === hexagon.id}
             onClick={() => onHexagonSelect(hexagon.id)}
             animationDelay={0.1 + (index * 0.1)}
+            isTransmissionSynchronized={isTransmissionSynchronized}
+            correctAnswerId={correctAnswerId}
           />
         ))}
       </div>

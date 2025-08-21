@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import svgPaths from "../../imports/svg-jqubfyh4jl";
+import svgPaths from "../../src/svg-paths.ts";
 
 interface SelectorOption {
   id: string;
@@ -82,8 +82,8 @@ function HexagonOption({
               fill="none"
               preserveAspectRatio="none"
               viewBox="0 0 36 40"
-            width="40"
-                height="40"
+              width="40"
+              height="40"
             >
               <path
                 d={svgPaths.hexagon}
@@ -99,26 +99,22 @@ function HexagonOption({
             className="block size-full"
             fill="none"
             preserveAspectRatio="none"
-            viewBox="0 0 40 40"
-               width="40"
-                height="40"
+            viewBox="0 0 36 40"
+            width="40"
+            height="40"
           >
-            <g id="Frame 64">
-              <path
-                d={svgPaths.hexagon}
-                id="Polygon 2"
-                stroke={isSelected ? "var(--stroke-0, #F59E0C)" : "var(--stroke-0, white)"}
-                strokeWidth={isSelected ? "2" : "1"}
-         
-              />
-              <circle
-                cx="20"
-                cy="20"
-                fill={isSelected ? "var(--fill-0, #F59E0C)" : "var(--fill-0, #D9D9D9)"}
-                id="Ellipse 34"
-                r="2"
-              />
-            </g>
+            <path
+              d={svgPaths.hexagon}
+              stroke="white"
+              strokeWidth="1"
+              fill="none"
+            />
+            <circle
+              cx="18"
+              cy="20"
+              fill="#D9D9D9"
+              r="2"
+            />
           </svg>
         )}
       </div>
@@ -126,73 +122,28 @@ function HexagonOption({
   );
 }
 
-export default function HexagonSelector({ 
-  options = defaultSelectorOptions,
-  onSelectionChange,
-  defaultSelected
+export function HexagonSelector({ 
+  options = defaultSelectorOptions, 
+  onSelectionChange, 
+  defaultSelected 
 }: HexagonSelectorProps) {
-  const [selectedOption, setSelectedOption] = useState<string>(defaultSelected || options[0]?.id || '');
+  const [selectedId, setSelectedId] = useState(defaultSelected || options[0]?.id || '');
 
-  const handleOptionClick = (optionId: string) => {
-    setSelectedOption(optionId);
-    onSelectionChange?.(optionId);
+  const handleSelectionChange = (id: string) => {
+    setSelectedId(id);
+    onSelectionChange?.(id);
   };
 
   return (
-    <div className="bg-[#080c10] relative size-full border border-blue-500">
-      <div className="text-blue-400 text-xs absolute top-2 left-2">DEBUG: HexagonSelector</div>
-      <div className="absolute contents left-1/2 top-[66px] translate-x-[-50%]">
-        {/* Render all options */}
-        {options.map((option) => (
-          <HexagonOption
-            key={option.id}
-            option={option}
-            isSelected={selectedOption === option.id}
-            onClick={() => handleOptionClick(option.id)}
-          />
-        ))}
-        
-        {/* Central large hexagon */}
-        <div
-          className="absolute left-1/2 size-[90px] translate-x-[-50%] translate-y-[-50%] cursor-pointer transition-all duration-200 hover:scale-105"
-          style={{ top: "calc(50% + 0.5px)" }}
-        >
-          <div className="absolute bottom-0 left-[6.7%] right-[6.7%] top-0">
-            <svg
-              className="block size-full"
-              fill="none"
-              preserveAspectRatio="none"
-              viewBox="0 0 78 90"
-            >
-              <path
-                d={svgPaths.hexagon}
-                id="Polygon 3"
-                stroke="var(--stroke-0, white)"
-                strokeWidth="1"
-                fill="transparent"
-              />
-            </svg>
-          </div>
-        </div>
-        
-        {/* Central icon */}
-        <div
-          className="absolute left-1/2 size-[22px] translate-x-[-50%] translate-y-[-50%] pointer-events-none"
-          data-name="Vector"
-          style={{ top: "calc(50% + 0.5px)" }}
-        >
-          <svg
-            className="block size-full"
-            fill="none"
-            preserveAspectRatio="none"
-            viewBox="0 0 22 22"
-               width="40"
-                height="40"
-          >
-            <path d={svgPaths.p95c0990} fill="var(--fill-0, white)" id="Vector" />
-          </svg>
-        </div>
-      </div>
+    <div className="relative w-full h-full">
+      {options.map((option) => (
+        <HexagonOption
+          key={option.id}
+          option={option}
+          isSelected={selectedId === option.id}
+          onClick={() => handleSelectionChange(option.id)}
+        />
+      ))}
     </div>
   );
 } 

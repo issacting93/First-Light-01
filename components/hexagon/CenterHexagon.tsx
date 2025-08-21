@@ -1,4 +1,4 @@
-import { type Glyph } from '../../src/services/dataService';
+import { type Glyph } from "@/services/dataService";
 
 interface CenterHexagonProps {
   selectedGlyph?: Glyph | null;
@@ -13,7 +13,7 @@ export function CenterHexagon({ selectedGlyph }: CenterHexagonProps) {
           className="block size-full"
           fill="none"
           preserveAspectRatio="none"
-          viewBox="0 0 78 90"
+          viewBox="0 0 90 90"
         >
           <path
             d="M39 3L75 24V66L39 87L3 66V24L39 3Z"
