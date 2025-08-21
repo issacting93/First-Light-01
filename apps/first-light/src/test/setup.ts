@@ -1,16 +1,16 @@
 import '@testing-library/jest-dom';
 
 // Mock window.requestAnimationFrame
-global.requestAnimationFrame = (callback) => {
+(window as any).requestAnimationFrame = (callback: FrameRequestCallback) => {
   setTimeout(callback, 0);
   return 1;
 };
 
 // Mock window.cancelAnimationFrame
-global.cancelAnimationFrame = () => {};
+(window as any).cancelAnimationFrame = () => {};
 
 // Mock ResizeObserver
-global.ResizeObserver = class ResizeObserver {
+(window as any).ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}

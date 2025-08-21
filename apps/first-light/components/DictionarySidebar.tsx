@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import dataService from '../src/services/dataService';
+import dataService from "@/services/dataService";
 
 export function DictionarySidebar() {
   const [isOpen] = useState(true);

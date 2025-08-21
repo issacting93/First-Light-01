@@ -10,7 +10,7 @@ import GlyphLambdaTabs from "./GlyphLambdaTabs";
 import { BackgroundMusic } from "./BackgroundMusic";
 import WelcomeModal from "./WelcomeModal";
 import EncounterStartOverlay from "./EncounterStartOverlay";
-import { useGameEngine } from "../src/services/gameEngineService";
+import { useGameEngine } from "@/services/gameEngineService";
 import { SoundShapeLanguage } from "./Lambda/SoundShapeLanguage";
 
 // Constants

@@ -212,7 +212,7 @@ export function useGameEngine() {
       console.log(`📋 Glyphs in transmission ${transmissionId}:`, glyphsInTransmission);
       
       glyphsInTransmission.forEach(glyphId => {
-        const glyph = updatedLexicon.get(glyphId);
+        const glyph = updatedLexicon.get(glyphId) as Glyph | undefined;
         if (glyph) {
           const wasUnlocked = glyph.isUnlocked;
           glyph.isUnlocked = dataService.isGlyphUnlocked(glyphId);
@@ -269,7 +269,7 @@ export function useGameEngine() {
           console.log(`📋 Glyphs in transmission ${numericId}:`, glyphsInTransmission);
           
           glyphsInTransmission.forEach(glyphId => {
-            const glyph = updatedLexicon.get(glyphId);
+            const glyph = updatedLexicon.get(glyphId) as Glyph | undefined;
             if (glyph) {
               const wasUnlocked = glyph.isUnlocked;
               glyph.isUnlocked = dataService.isGlyphUnlocked(glyphId);

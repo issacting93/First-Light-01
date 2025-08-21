@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { TransmissionDashboard, Transmission03 } from './translation/TransmissionPanel';
-import dataService from '../src/services/dataService';
+import dataService from "@/services/dataService";
 
 interface MessageButtonProps {
   transmissions: any[];

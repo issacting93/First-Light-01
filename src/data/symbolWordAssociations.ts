@@ -12,7 +12,7 @@ export interface SymbolWordMap {
 }
 
 // Import SVG paths from the centralized file
-import svgPaths from '../../imports/svg-jqubfyh4jl';
+import svgPaths from './svg-paths.ts';
 
 export const symbolWordAssociations = {
   "symbols": [

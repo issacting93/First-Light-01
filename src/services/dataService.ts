@@ -33,7 +33,7 @@ import gameConfigData from '../data/gameConfig.json';
 import narrativeTransmissionsData from '../data/narrativeTransmissions.json';
 
 // Import SVG paths from the new file
-import svgPaths from '../../../../imports/svg-jqubfyh4jl';
+import svgPaths from '../data/svg-paths.ts';
 
 // SVG path mapping - using only the new SVG paths
 const svgPathMap: Record<string, any> = {

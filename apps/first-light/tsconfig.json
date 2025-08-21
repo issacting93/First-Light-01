@@ -23,9 +23,18 @@
     /* Additional type resolution options */
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["../../src/*"],
+      "@/services/*": ["../../src/services/*"],
+      "@/data/*": ["../../src/data/*"],
+      "@/imports/*": ["../../imports/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "components/**/*.ts", "components/**/*.tsx", "types.d.ts"],
-  "exclude": ["components/archive/**/*", "src/data/archive/**/*"],
+  "exclude": ["components/archive/**/*", "src/data/archive/**/*", "**/*.stories.tsx"],
   "references": [{ "path": "./tsconfig.node.json" }]
 } 

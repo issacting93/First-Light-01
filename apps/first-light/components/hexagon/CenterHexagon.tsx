@@ -1,4 +1,4 @@
-import { type Glyph } from '../../src/services/dataService';
+import { type Glyph } from "@/services/dataService";
 
 interface CenterHexagonProps {
   selectedGlyph?: Glyph | null;
