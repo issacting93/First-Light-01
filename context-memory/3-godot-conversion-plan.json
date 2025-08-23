@@ -1,0 +1,246 @@
+{
+  "title": "Detailed Godot Conversion Plan",
+  "purpose": "Step-by-step methodology for converting React First-Light to Godot",
+  "conversion_strategy": {
+    "architecture_mapping": {
+      "react_to_godot": {
+        "React Components": "Godot Scenes (.tscn files)",
+        "React Hooks/State": "Godot Node variables and signals", 
+        "React Context": "Godot Autoload singletons",
+        "CSS Styling": "Godot theme resources and node properties",
+        "JavaScript Logic": "GDScript attached to nodes"
+      },
+      "file_structure": {
+        "scenes/": "UI components as instantiable scenes",
+        "scripts/": "GDScript logic files",
+        "autoload/": "Global state management singletons", 
+        "data/": "JSON data files for game content",
+        "assets/": "Audio, textures, and other media"
+      }
+    },
+    "phase_1_foundation": {
+      "priority": "Critical infrastructure setup",
+      "tasks": [
+        {
+          "task": "Create Godot project structure",
+          "deliverables": ["Project settings", "Directory organization", "Initial scenes"]
+        },
+        {
+          "task": "Setup autoload systems",
+          "deliverables": ["GameState.gd", "DataService.gd", "AudioManager.gd", "Events.gd"]
+        },
+        {
+          "task": "Data migration",
+          "deliverables": ["glyphs.json", "transmissions.json", "game_config.json"]
+        },
+        {
+          "task": "Basic scene hierarchy",
+          "deliverables": ["Main.tscn", "UI structure", "Node relationships"]
+        }
+      ]
+    },
+    "phase_2_core_components": {
+      "priority": "Essential gameplay elements",
+      "tasks": [
+        {
+          "task": "Glyph Display System",
+          "react_source": "GlyphRenderer.tsx",
+          "godot_target": "GlyphDisplay.tscn + GlyphDisplay.gd",
+          "challenges": ["SVG to Godot graphics conversion", "State management", "Animation system"],
+          "approach": ["Use ColorRect/Label for visual", "Signals for state changes", "Tween for animations"]
+        },
+        {
+          "task": "Transmission Renderer",
+          "react_source": "TransmissionRenderer.tsx", 
+          "godot_target": "TransmissionRenderer.gd + UI nodes",
+          "challenges": ["Dynamic glyph instantiation", "Mixed content rendering", "Layout management"],
+          "approach": ["Container nodes for layout", "Scene instantiation", "Signal connections"]
+        },
+        {
+          "task": "Hexagon Selection Grid",
+          "react_source": "HexagonSelection.tsx",
+          "godot_target": "HexagonGrid.tscn + Hexagon.tscn",
+          "challenges": ["Circular positioning math", "Dynamic grid creation", "Visual feedback"],
+          "approach": ["Mathematical positioning", "Scene instantiation", "Modulate for colors"]
+        },
+        {
+          "task": "Translation Controls",
+          "react_source": "TranslationControls.tsx",
+          "godot_target": "TranslationPanel.tscn + script",
+          "challenges": ["Progress tracking", "Button state management", "UI updates"],
+          "approach": ["Direct UI node manipulation", "Signal-based updates", "State tracking"]
+        }
+      ]
+    },
+    "phase_3_game_logic": {
+      "priority": "Core gameplay mechanics",
+      "tasks": [
+        {
+          "task": "State Management System",
+          "react_source": "Custom hooks + Context",
+          "godot_target": "GameState autoload",
+          "implementation": [
+            "Centralized game state variables",
+            "Signal emissions for state changes",
+            "Save/load functionality",
+            "Progress tracking methods"
+          ]
+        },
+        {
+          "task": "Glyph Unlocking Logic",
+          "react_source": "useGameProgression hook",
+          "godot_target": "GameState + DataService",
+          "implementation": [
+            "Transmission requirement checking",
+            "Dynamic glyph availability",
+            "Progressive content unlocking",
+            "Validation and error handling"
+          ]
+        },
+        {
+          "task": "Translation Validation",
+          "react_source": "Translation logic in components",
+          "godot_target": "GameState validation methods",
+          "implementation": [
+            "Meaning correctness checking", 
+            "Progress calculation",
+            "Synchronization detection",
+            "Next transmission unlocking"
+          ]
+        }
+      ]
+    },
+    "phase_4_audio_visual": {
+      "priority": "Polish and user experience",
+      "tasks": [
+        {
+          "task": "Audio System",
+          "react_source": "Audio context management",
+          "godot_target": "AudioManager autoload",
+          "implementation": [
+            "Background music management",
+            "Sound effect triggering",
+            "Volume controls",
+            "Audio state persistence"
+          ]
+        },
+        {
+          "task": "Visual Effects",
+          "react_source": "CSS animations and transitions",
+          "godot_target": "AnimationPlayer + Tween",
+          "implementation": [
+            "Hover and click animations",
+            "State transition effects",
+            "Progress animations", 
+            "Particle effects for success"
+          ]
+        },
+        {
+          "task": "SVG Graphics Conversion",
+          "react_source": "SVG path rendering",
+          "godot_target": "Custom drawing or texture generation",
+          "implementation": [
+            "Path-to-texture conversion",
+            "Runtime SVG rendering",
+            "Color and state management",
+            "Scaling and positioning"
+          ]
+        }
+      ]
+    },
+    "phase_5_integration": {
+      "priority": "System integration and testing",
+      "tasks": [
+        {
+          "task": "Component Integration",
+          "focus": "Ensure all systems work together",
+          "validation": ["Signal flow testing", "State synchronization", "UI responsiveness"]
+        },
+        {
+          "task": "Data Flow Testing",
+          "focus": "Validate game progression logic",
+          "validation": ["Save/load functionality", "Unlock progression", "Error handling"]
+        },
+        {
+          "task": "Performance Optimization", 
+          "focus": "Smooth gameplay experience",
+          "validation": ["Frame rate stability", "Memory usage", "Load times"]
+        }
+      ]
+    }
+  },
+  "technical_considerations": {
+    "godot_specific_advantages": [
+      "Built-in scene system for component organization",
+      "Signal system for clean event handling",
+      "Autoload for global state management",
+      "Built-in animation and tween systems",
+      "Integrated audio management"
+    ],
+    "conversion_challenges": [
+      {
+        "challenge": "SVG Path Rendering",
+        "react_approach": "Direct SVG DOM manipulation",
+        "godot_solution": "Custom drawing code or pre-rendered textures",
+        "complexity": "High - requires custom rendering logic"
+      },
+      {
+        "challenge": "Dynamic Layout Management",
+        "react_approach": "CSS flexbox and grid",
+        "godot_solution": "Container nodes and anchor/margin system",
+        "complexity": "Medium - different layout paradigm"
+      },
+      {
+        "challenge": "State Management Patterns",
+        "react_approach": "Hooks and context providers",
+        "godot_solution": "Autoload singletons and signals",
+        "complexity": "Low - similar patterns available"
+      }
+    ],
+    "data_migration": {
+      "json_compatibility": "Direct JSON file usage in Godot",
+      "structure_changes": "Minimal - mostly field name adjustments",
+      "validation_required": "Type checking for Godot's strict typing"
+    }
+  },
+  "success_criteria": {
+    "functional_parity": [
+      "All gameplay mechanics work identically",
+      "Save/load preserves game state correctly",
+      "Audio feedback matches original timing",
+      "Visual feedback provides same information"
+    ],
+    "performance_targets": [
+      "60 FPS maintained during all interactions",
+      "Load times under 2 seconds",
+      "Memory usage remains stable during extended play",
+      "No visual artifacts or animation stuttering"
+    ],
+    "user_experience_equivalence": [
+      "Learning curve identical to original",
+      "Same level of engagement and satisfaction",
+      "Accessibility features maintained",
+      "Visual clarity and readability preserved"
+    ]
+  },
+  "risk_mitigation": {
+    "high_risk_areas": [
+      {
+        "area": "SVG Graphics Conversion",
+        "mitigation": "Prototype early, have fallback to simple shapes",
+        "timeline_buffer": "25% additional time allocation"
+      },
+      {
+        "area": "Complex State Management",
+        "mitigation": "Implement comprehensive logging and debugging",
+        "timeline_buffer": "15% additional time allocation"
+      }
+    ],
+    "testing_strategy": [
+      "Incremental testing after each phase",
+      "Comparison testing against React version",
+      "User experience validation",
+      "Performance benchmarking"
+    ]
+  }
+}

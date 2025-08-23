@@ -10,11 +10,10 @@
     "preview": "pnpm --filter @firstlight/app preview",
     "clean": "pnpm -r exec rm -rf node_modules dist",
     "install:all": "pnpm install",
-    "build:all": "pnpm -r --filter=@firstlight/app build",
-    "build:ui": "pnpm --filter @firstlight/ui build",
-    "build:tokens": "pnpm --filter @firstlight/tokens build",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build:all": "pnpm --filter @firstlight/app build",
+    "build:reusable": "pnpm --filter @firstlight/reusable-components build",
+    "storybook": "pnpm --filter @firstlight/reusable-components storybook",
+    "build-storybook": "pnpm --filter @firstlight/reusable-components build-storybook"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",

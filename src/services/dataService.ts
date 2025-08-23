@@ -94,6 +94,7 @@ class DataService {
   private gameConfig!: GameConfig;
   private unlockedGlyphs: Set<string> = new Set(); // Track unlocked glyphs
   private cachedTransmissions: Transmission[] | null = null; // Cache for transmissions
+  private processedTransmissions: Set<number> = new Set(); // Track processed transmissions to prevent duplicates
 
   constructor() {
     this.loadData();
@@ -217,6 +218,12 @@ class DataService {
 
   // Unlock glyphs based on transmission data
   unlockGlyphsForTransmission(transmissionId: number) {
+    // Check if this transmission has already been processed
+    if (this.processedTransmissions.has(transmissionId)) {
+      console.log(`⏭️ Transmission ${transmissionId} already processed, skipping`);
+      return;
+    }
+    
     console.log(`🔍 Attempting to unlock glyphs for transmission ${transmissionId}`);
     
     const transmission = this.narrativeTransmissions.find(t => t.id === transmissionId);
@@ -256,6 +263,9 @@ class DataService {
     console.log(`📖 Transmission ${transmissionId} unlocked ${newlyUnlocked} new glyphs`);
     console.log(`📝 Description: ${description}`);
     console.log(`🔍 Current unlocked glyphs:`, Array.from(this.unlockedGlyphs));
+    
+    // Mark this transmission as processed
+    this.processedTransmissions.add(transmissionId);
   }
 
   // Get glyphs that appear in a specific transmission

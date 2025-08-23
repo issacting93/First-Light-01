@@ -107,10 +107,10 @@ export function useGameEngine() {
           : initialState.currentTransmission.id;
         
         if (firstTransmissionId) {
-          // Don't unlock glyphs here - let dataService handle the test configuration
-          // The dataService.initializeUnlockedGlyphs() already handles the test setup
+          // Unlock glyphs for the first transmission
+          dataService.unlockGlyphsForTransmission(firstTransmissionId);
           
-          // Just update the lexicon to reflect the current unlocked status
+          // Update the lexicon to reflect the current unlocked status
           const allGlyphsInTransmission = dataService.getGlyphsInTransmission(firstTransmissionId);
           const updatedLexicon = new Map(initialState.lexicon);
           
@@ -297,44 +297,61 @@ export function useGameEngine() {
     setGameState(prev => {
       const newTranslationState = { ...prev.translationState, [glyphId]: meaning };
       
-      // Update glyph usage count
+      // Update glyph usage count and create a new glyph object
       const glyph = prev.lexicon.get(glyphId);
       if (glyph) {
         try {
+          // Update the glyph in the data service
           dataService.updateGlyph(glyphId, {
             timesUsed: glyph.timesUsed + 1,
             confirmedMeaning: meaning,
             confidence: Math.min(100, glyph.confidence + 10)
           });
+          
+          // Create a new lexicon Map with the updated glyph
+          const newLexicon = new Map(prev.lexicon);
+          newLexicon.set(glyphId, {
+            ...glyph,
+            timesUsed: glyph.timesUsed + 1,
+            confirmedMeaning: meaning,
+            confidence: Math.min(100, glyph.confidence + 10)
+          });
+          
+          // Check if transmission is complete
+          const currentTransmission = prev.currentTransmission;
+          let isComplete = false;
+          
+          if (currentTransmission) {
+            if (isNarrativeTransmission(currentTransmission)) {
+              // Only check unlocked glyphs for completion
+              const unlockedGlyphItems = (currentTransmission.alienText as any[]).filter((item: any) => 
+                item.type === 'glyph' && 
+                item.glyph && 
+                dataService.isGlyphUnlocked(item.glyph)
+              );
+              isComplete = unlockedGlyphItems.length > 0 && unlockedGlyphItems.every((item: any) => newTranslationState[item.glyph!]);
+            } else if (isLegacyTransmission(currentTransmission)) {
+              // Only check unlocked glyphs for completion
+              const unlockedGlyphs = currentTransmission.glyphs?.filter(g => dataService.isGlyphUnlocked(g)) || [];
+              isComplete = unlockedGlyphs.length > 0 && unlockedGlyphs.every(g => newTranslationState[g]);
+            }
+          }
+          
+          return {
+            ...prev,
+            lexicon: newLexicon,
+            translationState: newTranslationState,
+            isTransmissionComplete: isComplete
+          };
         } catch (error) {
           console.error('Failed to update glyph:', error);
         }
       }
       
-      // Check if transmission is complete
-      const currentTransmission = prev.currentTransmission;
-      let isComplete = false;
-      
-      if (currentTransmission) {
-        if (isNarrativeTransmission(currentTransmission)) {
-          // Only check unlocked glyphs for completion
-          const unlockedGlyphItems = (currentTransmission.alienText as any[]).filter((item: any) => 
-            item.type === 'glyph' && 
-            item.glyph && 
-            dataService.isGlyphUnlocked(item.glyph)
-          );
-          isComplete = unlockedGlyphItems.length > 0 && unlockedGlyphItems.every((item: any) => newTranslationState[item.glyph!]);
-        } else if (isLegacyTransmission(currentTransmission)) {
-          // Only check unlocked glyphs for completion
-          const unlockedGlyphs = currentTransmission.glyphs?.filter(g => dataService.isGlyphUnlocked(g)) || [];
-          isComplete = unlockedGlyphs.length > 0 && unlockedGlyphs.every(g => newTranslationState[g]);
-        }
-      }
-      
+      // Fallback if glyph not found
       return {
         ...prev,
-        translationState: newTranslationState,
-        isTransmissionComplete: isComplete
+        translationState: newTranslationState
       };
     });
   }, []);
@@ -433,9 +450,10 @@ export function useGameEngine() {
         dataService.unlockGlyphsForTransmission(numericId);
       }
       
-      // Don't change the current transmission - let the player choose which one to explore
+      // Change the current transmission to the next one and unlock its glyphs
       const newState = {
         ...prev,
+        currentTransmission: nextTransmission,
         selectedGlyph: null,
         translationState: {},
         isTransmissionComplete: false,

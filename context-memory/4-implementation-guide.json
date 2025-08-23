@@ -1,0 +1,255 @@
+{
+  "title": "Godot Implementation Technical Guide",
+  "purpose": "Detailed technical instructions for implementing each system in Godot",
+  "implementation_details": {
+    "autoload_systems": {
+      "GameState.gd": {
+        "purpose": "Central game state management",
+        "key_variables": [
+          "unlocked_glyphs: Array[String] - tracks available glyphs",
+          "synchronized_transmissions: Array[int] - completed transmissions", 
+          "current_transmission_id: int - active transmission",
+          "translation_state: Dictionary - glyph to meaning mappings",
+          "selected_glyph: String - currently selected glyph"
+        ],
+        "critical_methods": [
+          "unlock_glyph(glyph_id) -> bool: validates and unlocks glyphs",
+          "assign_meaning(glyph_id, meaning): records translation",
+          "check_transmission_completion(): validates full transmission",
+          "synchronize_transmission(id): marks transmission complete",
+          "save_game_state() / load_game_state(): persistence"
+        ],
+        "signal_emissions": [
+          "glyph_selected(glyph_id): when player selects glyph",
+          "meaning_assigned(glyph_id, meaning): when translation made",
+          "transmission_synchronized(id): when transmission completed",
+          "glyph_unlocked(glyph_id): when new glyph becomes available"
+        ]
+      },
+      "DataService.gd": {
+        "purpose": "Game data loading and validation",
+        "key_methods": [
+          "load_game_data(): loads all JSON files on startup",
+          "validate_glyph_data(data): ensures glyph structure correctness",
+          "validate_transmission_data(data): validates transmission format",
+          "get_glyph(id): retrieves specific glyph data",
+          "get_transmission(id): retrieves specific transmission data",
+          "is_glyph_unlockable(id, sync_list): checks unlock requirements"
+        ],
+        "data_structures": [
+          "glyphs: Dictionary - all glyph definitions",
+          "transmissions: Array - all transmission data",
+          "game_config: Dictionary - configuration parameters"
+        ]
+      },
+      "AudioManager.gd": {
+        "purpose": "Audio playback and management",
+        "implementation": [
+          "Two AudioStreamPlayer nodes: music_player, sfx_player",
+          "Volume control with db conversion: linear_to_db(volume)",
+          "Settings persistence: save/load from user://audio_settings.save",
+          "Predefined sound functions for common game events",
+          "Background music switching based on game state"
+        ]
+      },
+      "Events.gd": {
+        "purpose": "Global event communication",
+        "pattern": "Central signal hub to prevent tight coupling",
+        "usage": "Components emit to Events, others listen to Events signals"
+      }
+    },
+    "scene_architecture": {
+      "Main.tscn": {
+        "structure": [
+          "Node2D (root)",
+          "  CanvasLayer (UI)",
+          "    HexagonGrid",
+          "    TranslationPanel", 
+          "    TransmissionRenderer",
+          "    BackgroundMusic",
+          "    WelcomeModal",
+          "    EncounterStartOverlay"
+        ],
+        "script": "Main.gd - orchestrates game flow and component interactions"
+      },
+      "GlyphDisplay.tscn": {
+        "structure": [
+          "Control (root, handles input)",
+          "  GlyphContainer (Control)",
+          "    GlyphBackground (ColorRect)",
+          "    GlyphBorder (ColorRect)",
+          "    GlyphSymbol (Label)", 
+          "    SVGRenderer (custom scene for complex graphics)",
+          "    TranslationLabel (Label)",
+          "    LockedIndicator (Label)",
+          "    SelectionRing (ColorRect)",
+          "  AnimationPlayer (for state transitions)"
+        ],
+        "script": "GlyphDisplay.gd - handles individual glyph behavior"
+      },
+      "Hexagon.tscn": {
+        "structure": [
+          "Control (root, handles input)",
+          "  HexagonSprite (Control)",
+          "    HexagonShape (Polygon2D)",
+          "    HexagonOutline (Line2D)",
+          "    CenterDot (Polygon2D)",
+          "  Label (meaning text)",
+          "  AnimationPlayer (for interactions)"
+        ],
+        "script": "Hexagon.gd - individual hexagon behavior"
+      }
+    },
+    "key_implementation_patterns": {
+      "signal_flow": {
+        "pattern": "Child components emit signals to parent, parent handles logic",
+        "example": "GlyphDisplay emits 'glyph_clicked' -> TransmissionRenderer handles -> GameState updates",
+        "benefits": "Clean separation of concerns, easy to debug"
+      },
+      "state_synchronization": {
+        "pattern": "Central state in autoload, components listen for changes",
+        "example": "GameState.glyph_selected signal -> all components update their display",
+        "implementation": "Connect to signals in _ready(), update UI in response"
+      },
+      "scene_instantiation": {
+        "pattern": "Dynamic creation of UI elements from scenes",
+        "example": "HexagonGrid creates Hexagon instances based on data",
+        "code": "var hexagon = hexagon_scene.instantiate(); add_child(hexagon)"
+      }
+    },
+    "critical_algorithms": {
+      "hexagon_positioning": {
+        "purpose": "Calculate circular arrangement of hexagons",
+        "algorithm": [
+          "radius = 120.0",
+          "angle_step = TAU / hexagon_count",
+          "for i in range(count):",
+          "  angle = i * angle_step", 
+          "  x = cos(angle) * radius",
+          "  y = sin(angle) * radius",
+          "  positions.append(Vector2(x, y))"
+        ]
+      },
+      "glyph_unlock_logic": {
+        "purpose": "Determine if glyph can be unlocked",
+        "logic": [
+          "For transmission 1: always unlockable (bootstrap)",
+          "For other transmissions: check if required transmission is synchronized",
+          "Special case handling for first-time game start"
+        ]
+      },
+      "progress_calculation": {
+        "purpose": "Track translation completion",
+        "formula": [
+          "unlocked_glyphs = get_unlocked_for_transmission(id)",
+          "translated_count = count glyphs in translation_state",
+          "progress = translated_count / unlocked_glyphs.size()",
+          "complete = (progress == 1.0 and unlocked_glyphs.size() > 0)"
+        ]
+      }
+    },
+    "ui_styling_approach": {
+      "color_management": {
+        "method": "Direct modulate property changes on nodes",
+        "states": {
+          "glyph_unlocked": "Color.WHITE",
+          "glyph_locked": "Color.RED", 
+          "glyph_translated": "Color.GREEN",
+          "glyph_selected": "Color.YELLOW"
+        }
+      },
+      "animations": {
+        "hover_effects": "Tween scale and modulate properties",
+        "selection_feedback": "AnimationPlayer for complex sequences",
+        "state_transitions": "Smooth tweens between color states"
+      },
+      "layout_management": {
+        "approach": "Anchor and margin system for responsive design",
+        "containers": "HBoxContainer/VBoxContainer for automatic arrangement",
+        "sizing": "custom_minimum_size for consistent element dimensions"
+      }
+    },
+    "data_handling": {
+      "json_loading": {
+        "pattern": "FileAccess.open() -> get_as_text() -> JSON.parse_string()",
+        "validation": "Check parse results and validate required fields",
+        "error_handling": "Fallback to default data if loading fails"
+      },
+      "save_system": {
+        "location": "user://game_state.save",
+        "format": "JSON string with all relevant game state",
+        "frequency": "Auto-save after each significant state change"
+      },
+      "type_safety": {
+        "approach": "Accept int or float from JSON, convert to int",
+        "validation": "Explicit type checking with helpful error messages",
+        "fallbacks": "Default values for missing or invalid data"
+      }
+    },
+    "performance_considerations": {
+      "memory_management": [
+        "Free unused glyph displays when switching transmissions",
+        "Use object pools for frequently created/destroyed objects",
+        "Disconnect signals when nodes are freed"
+      ],
+      "rendering_optimization": [
+        "Use CanvasItem.hide() for invisible elements rather than removal",
+        "Batch UI updates to avoid multiple redraws per frame",
+        "Cache expensive calculations like hexagon positions"
+      ],
+      "audio_optimization": [
+        "Preload common sound effects but load music on-demand",
+        "Use compressed audio formats for background music",
+        "Implement audio streaming for longer tracks"
+      ]
+    },
+    "debugging_strategies": {
+      "logging_system": [
+        "Consistent emoji prefixes for different system logs",
+        "Debug level controls to filter verbose output",
+        "State dump functions for complex debugging scenarios"
+      ],
+      "visual_debugging": [
+        "Debug overlays showing glyph states and positions",
+        "Console commands for state manipulation during testing",
+        "Visual indicators for signal flow and state changes"
+      ],
+      "testing_hooks": [
+        "Debug functions to unlock all glyphs instantly",
+        "Skip transmission requirements for testing",
+        "Manual state manipulation through debug console"
+      ]
+    }
+  },
+  "common_gotchas": {
+    "godot_specific": [
+      {
+        "issue": "Node not ready when accessing",
+        "solution": "Use @onready or await get_tree().process_frame",
+        "example": "@onready var label = $Label or await ready if needed"
+      },
+      {
+        "issue": "Signal connection timing",
+        "solution": "Connect signals in _ready() after all nodes initialized",
+        "example": "GameState.connect('signal_name', _on_signal_received)"
+      },
+      {
+        "issue": "Array type casting errors",
+        "solution": "Use untyped Array or explicit type conversion",
+        "example": "var arr: Array = [] instead of Array[Type] for JSON data"
+      }
+    ],
+    "game_logic": [
+      {
+        "issue": "Circular dependency in glyph unlocking",
+        "solution": "Bootstrap first transmission glyphs automatically",
+        "example": "Always allow transmission 1 glyphs to unlock"
+      },
+      {
+        "issue": "State synchronization between components",
+        "solution": "Central state in autoload with signal broadcasts",
+        "example": "GameState emits signals, all components listen and update"
+      }
+    ]
+  }
+}

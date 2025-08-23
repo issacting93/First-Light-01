@@ -11,9 +11,9 @@
         { "type": "glyph", "glyph": "light" }
       ],
       "glyphLocking": {
-        "unlockedGlyphs": ["i"],
-        "lockedGlyphs": [ "light", "you"],
-        "description": "Basic glyphs unlocked initially - represents unity"
+        "unlockedGlyphs": ["i", "you", "light"],
+        "lockedGlyphs": [],
+        "description": "All basic glyphs unlocked initially - first transmission should be fully accessible"
       },
       "translation": "I, you, light",
       "excerpt": "In the hush before first light, I speak.\n\nIn 90 turns, the sky will carry us near again.\n\nOur planets will drift into alignment —\nand I will lift my gaze to the heavens,\nhoping to catch the light of yours.",

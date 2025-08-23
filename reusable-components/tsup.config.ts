@@ -1,16 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/tailwind.preset.ts'],
+  entry: ['src/index.ts'],
   format: ['esm'],
   dts: true,
   splitting: false,
   sourcemap: true,
   clean: true,
-  external: ['tailwindcss'],
+  external: ['react', 'react-dom'],
   outDir: 'dist',
-  loader: {
-    '.css': 'copy'
-  },
-  onSuccess: 'cp src/styles.css dist/'
 }); 

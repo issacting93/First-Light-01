@@ -1,0 +1,349 @@
+{
+  "title": "Bug Testing and Implementation Checklist",
+  "purpose": "Comprehensive testing methodology and common bug patterns for Godot First-Light",
+  "testing_phases": {
+    "phase_1_foundation_testing": {
+      "autoload_systems": [
+        {
+          "system": "GameState",
+          "tests": [
+            "Verify game state initializes with correct defaults",
+            "Test glyph unlocking logic for transmission 1",
+            "Validate save/load functionality preserves all state",
+            "Check signal emissions for all state changes",
+            "Test edge cases: empty state, corrupted save files"
+          ],
+          "expected_behaviors": [
+            "unlocked_glyphs starts with transmission 1 glyphs",
+            "save_game_state creates valid JSON file",
+            "load_game_state restores exact previous state"
+          ]
+        },
+        {
+          "system": "DataService", 
+          "tests": [
+            "Validate JSON file loading for glyphs and transmissions",
+            "Test data validation catches malformed entries",
+            "Verify fallback to defaults when files missing",
+            "Check type conversion from JSON to Godot types",
+            "Test glyph/transmission retrieval methods"
+          ],
+          "expected_behaviors": [
+            "All JSON files load without errors",
+            "Invalid data entries are skipped with warnings",
+            "get_glyph() and get_transmission() return correct data"
+          ]
+        },
+        {
+          "system": "AudioManager",
+          "tests": [
+            "Test audio file loading and error handling",
+            "Validate volume controls affect playback",
+            "Check audio settings persistence",
+            "Test background music switching",
+            "Verify sound effect triggering"
+          ],
+          "expected_behaviors": [
+            "Missing audio files fail gracefully",
+            "Volume changes apply immediately",
+            "Settings save/load correctly"
+          ]
+        }
+      ]
+    },
+    "phase_2_ui_component_testing": {
+      "glyph_display": [
+        {
+          "test": "Visual State Rendering",
+          "validation": [
+            "Unlocked glyphs show with bright colors",
+            "Locked glyphs show dimmed/red",
+            "Translated glyphs show green with meaning text",
+            "Selected glyph shows selection ring"
+          ]
+        },
+        {
+          "test": "Interaction Handling",
+          "validation": [
+            "Click events only fire for unlocked glyphs",
+            "Hover effects apply correctly",
+            "Signals emit with correct glyph_id parameter",
+            "Animation states transition smoothly"
+          ]
+        },
+        {
+          "test": "Dynamic Content Updates",
+          "validation": [
+            "Glyph text/SVG renders correctly",
+            "State changes update visuals immediately", 
+            "Translation labels appear when meaning assigned",
+            "Lock indicators show/hide appropriately"
+          ]
+        }
+      ],
+      "hexagon_grid": [
+        {
+          "test": "Grid Generation",
+          "validation": [
+            "Hexagons position in correct circular pattern",
+            "Correct number of hexagons for meaning count",
+            "Each hexagon displays proper meaning text",
+            "Grid clears completely between generations"
+          ]
+        },
+        {
+          "test": "Selection Logic",
+          "validation": [
+            "Only non-correct answers available before sync",
+            "All answers available after transmission sync",
+            "Correct selection updates translation state",
+            "Wrong selection shows error feedback"
+          ]
+        },
+        {
+          "test": "Visual Feedback",
+          "validation": [
+            "Hexagon colors change on hover",
+            "Selection provides immediate feedback",
+            "Correct answers show green when synchronized",
+            "Animations play at appropriate times"
+          ]
+        }
+      ],
+      "translation_panel": [
+        {
+          "test": "Progress Tracking",
+          "validation": [
+            "Progress text updates in real-time",
+            "Button states reflect current progress",
+            "Synchronization status displays correctly",
+            "Next transmission button enables appropriately"
+          ]
+        },
+        {
+          "test": "Control Functionality",
+          "validation": [
+            "Synchronize button triggers transmission completion",
+            "Next button advances to correct transmission",
+            "Button animations provide proper feedback",
+            "Status messages update contextually"
+          ]
+        }
+      ]
+    },
+    "phase_3_gameplay_logic_testing": {
+      "progression_system": [
+        {
+          "scenario": "First Time Play",
+          "test_steps": [
+            "Start new game",
+            "Verify transmission 1 glyphs are unlocked",
+            "Translate all glyphs correctly",
+            "Confirm transmission synchronizes",
+            "Check transmission 2 glyphs unlock"
+          ]
+        },
+        {
+          "scenario": "Save/Load Continuity",
+          "test_steps": [
+            "Play to mid-transmission state",
+            "Save and restart game",
+            "Verify exact state restoration",
+            "Continue gameplay from saved point",
+            "Confirm no state corruption"
+          ]
+        },
+        {
+          "scenario": "Error Recovery",
+          "test_steps": [
+            "Test with corrupted save file",
+            "Verify graceful fallback to defaults",
+            "Test with missing data files",
+            "Confirm error messages are helpful",
+            "Check game remains playable"
+          ]
+        }
+      ],
+      "glyph_mechanics": [
+        {
+          "test": "Unlock Sequence",
+          "validation": [
+            "Glyphs unlock only when requirements met",
+            "Visual feedback matches actual unlock state",
+            "Locked glyphs prevent interaction correctly",
+            "Unlock events trigger proper notifications"
+          ]
+        },
+        {
+          "test": "Translation Validation",
+          "validation": [
+            "Only correct meanings advance progress",
+            "Incorrect selections provide error feedback",
+            "Translation state persists correctly",
+            "Progress calculation remains accurate"
+          ]
+        }
+      ]
+    },
+    "phase_4_integration_testing": {
+      "component_communication": [
+        {
+          "test": "Signal Flow",
+          "validation": [
+            "Glyph selection updates hexagon grid",
+            "Translation updates progress panel",
+            "Synchronization affects all components",
+            "No duplicate or missed signal emissions"
+          ]
+        },
+        {
+          "test": "State Consistency",
+          "validation": [
+            "All components show consistent game state",
+            "State changes propagate to all relevant UI",
+            "No race conditions in state updates",
+            "UI updates occur in correct sequence"
+          ]
+        }
+      ],
+      "performance_validation": [
+        {
+          "test": "Memory Management",
+          "validation": [
+            "No memory leaks during extended play",
+            "Unused nodes freed properly",
+            "Signal connections cleaned up correctly",
+            "No performance degradation over time"
+          ]
+        },
+        {
+          "test": "Rendering Performance", 
+          "validation": [
+            "60 FPS maintained during all interactions",
+            "No frame drops during animations",
+            "Smooth transitions between states",
+            "Responsive input handling"
+          ]
+        }
+      ]
+    }
+  },
+  "common_bug_patterns": {
+    "state_management_bugs": [
+      {
+        "bug": "Glyph shows as unlocked but can't be clicked",
+        "cause": "Mismatch between visual state and interaction state",
+        "diagnosis": "Check is_unlocked vs GameState.unlocked_glyphs consistency",
+        "fix": "Ensure both states updated simultaneously"
+      },
+      {
+        "bug": "Progress shows 100% but transmission not synchronized",
+        "cause": "Progress calculation vs synchronization logic mismatch",
+        "diagnosis": "Verify progress calculation includes all required glyphs",
+        "fix": "Align progress logic with synchronization requirements"
+      },
+      {
+        "bug": "Save/load doesn't preserve exact state",
+        "cause": "Incomplete state serialization or timing issues",
+        "diagnosis": "Compare saved JSON with actual game state",
+        "fix": "Include all relevant state variables in save data"
+      }
+    ],
+    "ui_interaction_bugs": [
+      {
+        "bug": "Click events not registering",
+        "cause": "Input handling setup or node hierarchy issues",
+        "diagnosis": "Check gui_input signal connections and mouse_filter settings",
+        "fix": "Ensure input nodes have correct mouse_filter and signal connections"
+      },
+      {
+        "bug": "Visual feedback doesn't match game state",
+        "cause": "UI update timing or signal handling issues",
+        "diagnosis": "Check when update_display() is called vs state changes",
+        "fix": "Ensure UI updates immediately after state changes"
+      },
+      {
+        "bug": "Animations interrupt each other",
+        "cause": "Multiple tweens/animations on same property",
+        "diagnosis": "Check for overlapping animation triggers",
+        "fix": "Kill existing tweens before starting new ones"
+      }
+    ],
+    "data_loading_bugs": [
+      {
+        "bug": "JSON parsing fails silently",
+        "cause": "Error handling doesn't catch all failure cases",
+        "diagnosis": "Add comprehensive logging to JSON loading",
+        "fix": "Check JSON.parse_string() result and handle all error cases"
+      },
+      {
+        "bug": "Type validation too strict/loose",
+        "cause": "Godot type system vs JSON data type mismatches",
+        "diagnosis": "Check validation logic for int/float acceptance",
+        "fix": "Accept both int and float, convert as needed"
+      }
+    ],
+    "performance_bugs": [
+      {
+        "bug": "Frame rate drops during interactions",
+        "cause": "Expensive operations on main thread",
+        "diagnosis": "Profile with Godot's performance monitor",
+        "fix": "Optimize heavy calculations, use object pooling"
+      },
+      {
+        "bug": "Memory usage grows over time",
+        "cause": "Objects not freed or signal leaks",
+        "diagnosis": "Monitor memory usage, check node tree growth",
+        "fix": "Ensure proper cleanup in queue_free() and signal disconnection"
+      }
+    ]
+  },
+  "debugging_tools": {
+    "logging_system": [
+      "Emoji-prefixed debug messages for system identification",
+      "Log levels to filter output during different testing phases", 
+      "State dump functions to capture complete game state",
+      "Performance timing logs for optimization"
+    ],
+    "visual_debugging": [
+      "Debug overlays showing internal state",
+      "Console commands for manual state manipulation",
+      "Visual indicators for signal emissions",
+      "Node tree inspection during runtime"
+    ],
+    "testing_utilities": [
+      "Auto-unlock all glyphs command for testing",
+      "Skip transmission requirements for rapid testing",
+      "State validation functions for consistency checking",
+      "Automated progression testing scripts"
+    ]
+  },
+  "validation_checklist": {
+    "before_release": [
+      "All core gameplay mechanics function correctly",
+      "Save/load preserves complete game state",
+      "Audio feedback triggers at appropriate times",
+      "Visual feedback matches game state accurately",
+      "No critical errors in console output",
+      "Performance targets met (60 FPS, stable memory)",
+      "All transmission progressions work correctly",
+      "Error cases handled gracefully"
+    ],
+    "user_experience": [
+      "Interface feels responsive and fluid",
+      "Learning curve matches original game",
+      "Visual clarity preserved from React version",
+      "Audio enhances rather than distracts",
+      "Progress indicators provide clear feedback",
+      "Error messages are helpful and clear"
+    ]
+  },
+  "regression_testing": [
+    "Complete gameplay progression from start to finish",
+    "Save/load at multiple game states",
+    "Error recovery from various failure scenarios",
+    "Performance testing under extended play",
+    "UI responsiveness across different screen sizes",
+    "Audio system stability over long sessions"
+  ]
+}
