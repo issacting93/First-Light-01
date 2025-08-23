@@ -322,7 +322,6 @@ export default function CombinedInterface() {
                   currentTransmission={gameState?.currentTransmission}
                   gameState={gameState}
                   onNextTransmission={handleNextTransmission}
-                  onSynchronize={handleSynchronize}
                 />
               </div>
             </>
