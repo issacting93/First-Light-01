@@ -29,9 +29,9 @@ function AnimatedHexagon({
   correctAnswerId?: string;
 }) {
   const renderHexagonShape = () => {
-    // Determine if this hexagon should show a dot
-    const isCorrectAnswer = config.id === correctAnswerId;
-    const shouldShowDot = isCorrectAnswer ? isTransmissionSynchronized : true;
+    // ✅ ROBUST: Make dot logic work regardless of synchronization state
+    // Always show dots for all hexagons to maintain visual consistency
+    const shouldShowDot = true;
     
     if (config.type === 'filled') {
       return (
