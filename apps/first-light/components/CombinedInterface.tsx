@@ -63,6 +63,44 @@ export default function CombinedInterface() {
     setTerminalMessages(prev => [...prev, createTerminalMessage(`GLYPH "${glyphId}" TRANSLATED AS "${meaning}"`)]);
   }, [assignMeaning]);
 
+  // ✅ NEW: Helper function to check transmission completion (non-blocking)
+  const checkTransmissionCompletion = useCallback((transmission: any, translationState: Record<string, string>): boolean => {
+    if (!transmission) return false;
+    
+    // Check if it's a narrative transmission
+    if ('alienText' in transmission) {
+      const narrativeTransmission = transmission as any;
+      const glyphItems = narrativeTransmission.alienText.filter((item: any) => 
+        item.type === 'glyph' && item.glyph
+      );
+      
+      if (glyphItems.length === 0) return true; // No glyphs to translate
+      
+      // Check if all unlocked glyphs are translated
+      const unlockedGlyphItems = glyphItems.filter((item: any) => 
+        item.glyph && dataService.isGlyphUnlocked(item.glyph)
+      );
+      
+      return unlockedGlyphItems.length > 0 && 
+             unlockedGlyphItems.every((item: any) => translationState[item.glyph!]);
+    }
+    
+    // Check if it's a legacy transmission
+    if ('glyphs' in transmission) {
+      const legacyTransmission = transmission as any;
+      if (!legacyTransmission.glyphs || legacyTransmission.glyphs.length === 0) return true;
+      
+      const unlockedGlyphs = legacyTransmission.glyphs.filter((g: string) => 
+        dataService.isGlyphUnlocked(g)
+      );
+      
+      return unlockedGlyphs.length > 0 && 
+             unlockedGlyphs.every(g => translationState[g]);
+    }
+    
+    return false;
+  }, []);
+
   // Wrapper for hexagon selector that converts meaning selection to glyph assignment
   const handleHexagonSelect = useCallback((hexagonId: string) => {
     if (!gameState?.selectedGlyph) return;
@@ -74,11 +112,20 @@ export default function CombinedInterface() {
       handleAssignMeaning(gameState.selectedGlyph, hexagonId);
       selectGlyph(null); // Deselect the glyph
       
-      // ✅ Optional: Check if transmission is now complete (non-blocking)
+      // ✅ ENHANCED: Check if transmission is now complete (non-blocking)
       const currentTransmission = gameState.currentTransmission;
       if (currentTransmission) {
         console.log('🎯 Translation completed, checking transmission status...');
-        // Could add completion logic here without blocking translation
+        
+        // Check if this transmission is now complete
+        const isComplete = checkTransmissionCompletion(currentTransmission, gameState.translationState);
+        if (isComplete) {
+          console.log('🎉 Transmission completed!');
+          setTerminalMessages(prev => [...prev, createTerminalMessage(`🎉 TRANSMISSION COMPLETED! All glyphs translated successfully.`)]);
+          
+          // Could trigger celebration effects or unlock next transmission here
+          // This is non-blocking - user can continue playing immediately
+        }
       }
     } else {
       // This is a wrong answer, show feedback but don't assign meaning
