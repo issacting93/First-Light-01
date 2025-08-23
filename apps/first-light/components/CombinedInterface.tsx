@@ -266,14 +266,6 @@ export default function CombinedInterface() {
                   onHexagonSelect={handleHexagonSelect}
                   selectedGlyph={selectedGlyph}
                   className="w-full h-full"
-                  isTransmissionSynchronized={(() => {
-                    const currentTransmissionId = gameState?.currentTransmission?.id;
-                    const numericId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
-                    const isSync = numericId && gameState?.synchronizedTransmissions?.has(numericId);
-                    // Debug: Sync state checked
-                    return isSync;
-                  })()}
-                  correctAnswerId={selectedGlyph?.confirmedMeaning || ""}
                 />
               </div>
 
