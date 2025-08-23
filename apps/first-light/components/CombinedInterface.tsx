@@ -65,42 +65,27 @@ export default function CombinedInterface() {
 
   // Wrapper for hexagon selector that converts meaning selection to glyph assignment
   const handleHexagonSelect = useCallback((hexagonId: string) => {
-    if (!gameState?.selectedGlyph || !gameState?.currentTransmission) return;
-    
-    // Check if the current transmission is synchronized (100% complete)
-    const currentTransmissionId = gameState.currentTransmission.id;
-    const numericCurrentId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
-    const isTransmissionSynchronized = numericCurrentId && gameState.synchronizedTransmissions.has(numericCurrentId);
-    
-    console.log('🎯 Hexagon Selection Debug:', {
-      hexagonId,
-      currentTransmissionId,
-      numericCurrentId,
-      synchronizedTransmissions: Array.from(gameState.synchronizedTransmissions || []),
-      isTransmissionSynchronized,
-      isCorrectAnswer: !hexagonId.startsWith('decoy-')
-    });
+    if (!gameState?.selectedGlyph) return;
     
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
-      // Only show correct answer if transmission is synchronized
-      if (isTransmissionSynchronized) {
-        // This is the correct answer, assign the meaning
-        console.log('✅ Correct answer selected:', hexagonId);
-        handleAssignMeaning(gameState.selectedGlyph, hexagonId);
-        // Clear the selection after assigning meaning - use selectGlyph directly to avoid circular dependency
-        selectGlyph(null); // Deselect the glyph
-      } else {
-        // Transmission not synchronized yet, don't reveal correct answer
-        console.log('🔒 Transmission not synchronized yet, correct answer hidden');
-        setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION NOT SYNCHRONIZED - COMPLETE THE TRANSMISSION FIRST`)]);
+      // ✅ RESTORE: Allow translation immediately - no blocking synchronization
+      console.log('✅ Correct answer selected:', hexagonId);
+      handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      selectGlyph(null); // Deselect the glyph
+      
+      // ✅ Optional: Check if transmission is now complete (non-blocking)
+      const currentTransmission = gameState.currentTransmission;
+      if (currentTransmission) {
+        console.log('🎯 Translation completed, checking transmission status...');
+        // Could add completion logic here without blocking translation
       }
     } else {
       // This is a wrong answer, show feedback but don't assign meaning
       console.log('❌ Wrong answer selected:', hexagonId);
       setTerminalMessages(prev => [...prev, createTerminalMessage(`INCORRECT SELECTION: "${hexagonId}" IS NOT THE RIGHT MEANING`)]);
     }
-  }, [gameState?.selectedGlyph, gameState?.currentTransmission, gameState?.synchronizedTransmissions, handleAssignMeaning, selectGlyph]);
+  }, [gameState?.selectedGlyph, gameState?.currentTransmission, handleAssignMeaning, selectGlyph]);
 
   // Wrapper for modal that matches its expected signature
   const handleModalAssignMeaning = useCallback((meaning: string) => {
