@@ -1,5 +1,5 @@
 {
-  "name": "@firstlight/reusable-components",
+  "name": "@encounter/reusable-components",
   "version": "1.0.0",
   "description": "Reusable UI components and design tokens for Encounter projects",
   "type": "module",

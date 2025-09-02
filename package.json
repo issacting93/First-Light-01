@@ -4,16 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @firstlight/app dev",
-    "build": "pnpm --filter @firstlight/app build",
-    "lint": "pnpm --filter @firstlight/app lint",
-    "preview": "pnpm --filter @firstlight/app preview",
+    "dev": "pnpm --filter @encounter/app dev",
+    "build": "pnpm --filter @encounter/app build",
+    "lint": "pnpm --filter @encounter/app lint",
+    "preview": "pnpm --filter @encounter/app preview",
     "clean": "pnpm -r exec rm -rf node_modules dist",
     "install:all": "pnpm install",
-    "build:all": "pnpm --filter @firstlight/app build",
-    "build:reusable": "pnpm --filter @firstlight/reusable-components build",
-    "storybook": "pnpm --filter @firstlight/reusable-components storybook",
-    "build-storybook": "pnpm --filter @firstlight/reusable-components build-storybook"
+    "build:all": "pnpm --filter @encounter/app build",
+    "build:reusable": "pnpm --filter @encounter/reusable-components build",
+    "storybook": "pnpm --filter @encounter/reusable-components storybook",
+    "build-storybook": "pnpm --filter @encounter/app build-storybook"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.11",
