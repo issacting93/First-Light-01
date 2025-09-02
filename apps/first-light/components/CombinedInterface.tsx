@@ -34,10 +34,13 @@ export default function CombinedInterface() {
   const {
     gameState,
     selectGlyph,
+    clearPersistentSelections,
     selectTransmission,
-    assignMeaning,
-    nextTransmission,
     viewTransmission,
+    assignMeaning,
+    calculateAccuracy,
+    nextTransmission,
+    addLog,
     markTransmissionSynchronized
   } = useGameEngine();
 
@@ -63,44 +66,122 @@ export default function CombinedInterface() {
     setTerminalMessages(prev => [...prev, createTerminalMessage(`GLYPH "${glyphId}" TRANSLATED AS "${meaning}"`)]);
   }, [assignMeaning]);
 
+  // ✅ NEW: Helper function to check transmission completion (non-blocking)
+  const checkTransmissionCompletion = useCallback((transmission: any, translationState: Record<string, string>): boolean => {
+    if (!transmission) return false;
+    
+    // Check if it's a narrative transmission
+    if ('alienText' in transmission) {
+      const narrativeTransmission = transmission as any;
+      const glyphItems = narrativeTransmission.alienText.filter((item: any) => 
+        item.type === 'glyph' && item.glyph
+      );
+      
+      if (glyphItems.length === 0) return true; // No glyphs to translate
+      
+      // Check if all unlocked glyphs are translated
+      const unlockedGlyphItems = glyphItems.filter((item: any) => 
+        item.glyph && dataService.isGlyphUnlocked(item.glyph)
+      );
+      
+      return unlockedGlyphItems.length > 0 && 
+             unlockedGlyphItems.every((item: any) => translationState[item.glyph!]);
+    }
+    
+    // Check if it's a legacy transmission
+    if ('glyphs' in transmission) {
+      const legacyTransmission = transmission as any;
+      if (!legacyTransmission.glyphs || legacyTransmission.glyphs.length === 0) return true;
+      
+      const unlockedGlyphs = legacyTransmission.glyphs.filter((g: string) => 
+        dataService.isGlyphUnlocked(g)
+      );
+      
+      return unlockedGlyphs.length > 0 && 
+             unlockedGlyphs.every(g => translationState[g]);
+    }
+    
+    return false;
+  }, []);
+
+  // ✅ NEW: Helper function to get translation progress (matching TranslationControls logic)
+  const getTranslationProgress = useCallback((transmission: any, translationState: Record<string, string>) => {
+    if ('alienText' in transmission) {
+      // Narrative transmission
+      const glyphItems = transmission.alienText.filter((item: any) => 
+        item.type === 'glyph' && item.glyph
+      );
+      
+      if (glyphItems.length === 0) return { unlocked: 0, translated: 0, total: 0 };
+      
+      const unlockedGlyphItems = glyphItems.filter((item: any) => 
+        item.glyph && dataService.isGlyphUnlocked(item.glyph)
+      );
+      const translatedGlyphs = unlockedGlyphItems.filter((item: any) => 
+        translationState[item.glyph!]
+      );
+      
+      return {
+        unlocked: unlockedGlyphItems.length,
+        translated: translatedGlyphs.length,
+        total: glyphItems.length
+      };
+    } else if ('glyphs' in transmission) {
+      // Legacy transmission
+      const unlockedGlyphs = transmission.glyphs?.filter((g: string) => dataService.isGlyphUnlocked(g)) || [];
+      const translatedGlyphs = unlockedGlyphs.filter((g: string) => translationState[g]);
+      
+      return {
+        unlocked: unlockedGlyphs.length,
+        translated: translatedGlyphs.length,
+        total: transmission.glyphs?.length || 0
+      };
+    }
+    
+    return { unlocked: 0, translated: 0, total: 0 };
+  }, []);
+
   // Wrapper for hexagon selector that converts meaning selection to glyph assignment
   const handleHexagonSelect = useCallback((hexagonId: string) => {
-    if (!gameState?.selectedGlyph || !gameState?.currentTransmission) return;
-    
-    // Check if the current transmission is synchronized (100% complete)
-    const currentTransmissionId = gameState.currentTransmission.id;
-    const numericCurrentId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
-    const isTransmissionSynchronized = numericCurrentId && gameState.synchronizedTransmissions.has(numericCurrentId);
-    
-    console.log('🎯 Hexagon Selection Debug:', {
-      hexagonId,
-      currentTransmissionId,
-      numericCurrentId,
-      synchronizedTransmissions: Array.from(gameState.synchronizedTransmissions || []),
-      isTransmissionSynchronized,
-      isCorrectAnswer: !hexagonId.startsWith('decoy-')
-    });
+    if (!gameState?.selectedGlyph) return;
     
     // Check if this is the correct answer (no "decoy-" prefix)
     if (!hexagonId.startsWith('decoy-')) {
-      // Only show correct answer if transmission is synchronized
-      if (isTransmissionSynchronized) {
-        // This is the correct answer, assign the meaning
-        console.log('✅ Correct answer selected:', hexagonId);
-        handleAssignMeaning(gameState.selectedGlyph, hexagonId);
-        // Clear the selection after assigning meaning - use selectGlyph directly to avoid circular dependency
-        selectGlyph(null); // Deselect the glyph
-      } else {
-        // Transmission not synchronized yet, don't reveal correct answer
-        console.log('🔒 Transmission not synchronized yet, correct answer hidden');
-        setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION NOT SYNCHRONIZED - COMPLETE THE TRANSMISSION FIRST`)]);
+      // ✅ RESTORE: Allow translation immediately - no blocking synchronization
+      console.log('✅ Correct answer selected:', hexagonId);
+      handleAssignMeaning(gameState.selectedGlyph, hexagonId);
+      selectGlyph(null); // Deselect the glyph
+      
+      // ✅ ENHANCED: Check if transmission is now complete (non-blocking)
+      const currentTransmission = gameState.currentTransmission;
+      if (currentTransmission) {
+        console.log('🎯 Translation completed, checking transmission status...');
+        
+        // Check if this transmission is now complete
+        const isComplete = checkTransmissionCompletion(currentTransmission, gameState.translationState);
+        if (isComplete) {
+          console.log('🎉 Transmission completed!');
+          setTerminalMessages(prev => [...prev, createTerminalMessage(`🎉 TRANSMISSION COMPLETED! All glyphs translated successfully.`)]);
+          
+          // ✅ CRITICAL FIX: Mark transmission as synchronized when complete
+          const transmissionId = typeof currentTransmission.id === 'string' 
+            ? parseInt(currentTransmission.id) 
+            : currentTransmission.id;
+          
+          if (transmissionId) {
+            markTransmissionSynchronized(transmissionId);
+          }
+          
+          // Could trigger celebration effects or unlock next transmission here
+          // This is non-blocking - user can continue playing immediately
+        }
       }
     } else {
       // This is a wrong answer, show feedback but don't assign meaning
       console.log('❌ Wrong answer selected:', hexagonId);
       setTerminalMessages(prev => [...prev, createTerminalMessage(`INCORRECT SELECTION: "${hexagonId}" IS NOT THE RIGHT MEANING`)]);
     }
-  }, [gameState?.selectedGlyph, gameState?.currentTransmission, gameState?.synchronizedTransmissions, handleAssignMeaning, selectGlyph]);
+  }, [gameState?.selectedGlyph, gameState?.currentTransmission, handleAssignMeaning, selectGlyph, checkTransmissionCompletion, gameState, markTransmissionSynchronized]);
 
   // Wrapper for modal that matches its expected signature
   const handleModalAssignMeaning = useCallback((meaning: string) => {
@@ -119,27 +200,38 @@ export default function CombinedInterface() {
     setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION SYNCHRONIZED - ACCURACY: ${accuracy}%`)]);
   }, [markTransmissionSynchronized]);
 
-  const handleSynchronize = useCallback(() => {
-    if (gameState?.currentTransmission) {
-      // Mark the current transmission as synchronized
-      const currentTransmissionId = gameState.currentTransmission.id;
-      markTransmissionSynchronized(currentTransmissionId);
-      
-      // Add terminal message for synchronization
-      setTerminalMessages(prev => [...prev, createTerminalMessage(`TRANSMISSION MARKED AS SYNCHRONIZED`)]);
-    }
-  }, [gameState?.currentTransmission, markTransmissionSynchronized]);
-
   const handleCloseGlyphModal = useCallback(() => {
     setShowGlyphModal(false);
     setModalGlyph(null);
   }, []);
 
   const handleNextTransmission = useCallback(() => {
+    // ✅ STEP 1: Check if transmission is complete before proceeding
+    if (gameState?.currentTransmission) {
+      const progress = getTranslationProgress(gameState.currentTransmission, gameState.translationState);
+      const isComplete = progress.translated === progress.unlocked && progress.unlocked > 0;
+      
+      if (isComplete) {
+        // ✅ STEP 2: Mark as synchronized first
+        const transmissionId = typeof gameState.currentTransmission.id === 'string' 
+          ? parseInt(gameState.currentTransmission.id) 
+          : gameState.currentTransmission.id;
+        
+        if (transmissionId) {
+          markTransmissionSynchronized(transmissionId);
+          setTerminalMessages(prev => [...prev, createTerminalMessage(`🎉 TRANSMISSION SYNCHRONIZED - PROCEEDING TO NEXT`)]);
+        }
+      } else {
+        // ✅ STEP 3: Show error if not complete - don't proceed
+        setTerminalMessages(prev => [...prev, createTerminalMessage(`⚠️ TRANSMISSION NOT COMPLETE - TRANSLATE ALL GLYPHS FIRST`)]);
+        return; // Don't proceed to next transmission
+      }
+    }
+    
+    // ✅ STEP 4: Only proceed if transmission was synchronized
     nextTransmission();
-    // Add terminal message for unlocking next transmission
-    setTerminalMessages(prev => [...prev, 'UNLOCKING NEXT TRANSMISSION...']);
-  }, [nextTransmission]);
+    setTerminalMessages(prev => [...prev, createTerminalMessage(`🚀 UNLOCKING NEXT TRANSMISSION...`)]);
+  }, [gameState?.currentTransmission, gameState?.translationState, markTransmissionSynchronized, nextTransmission]);
 
   const handleSoundShapeEndTransmission = useCallback(() => {
     console.log('SoundShape end transmission triggered');
@@ -281,14 +373,6 @@ export default function CombinedInterface() {
                   onHexagonSelect={handleHexagonSelect}
                   selectedGlyph={selectedGlyph}
                   className="w-full h-full"
-                  isTransmissionSynchronized={(() => {
-                    const currentTransmissionId = gameState?.currentTransmission?.id;
-                    const numericId = typeof currentTransmissionId === 'string' ? parseInt(currentTransmissionId) : currentTransmissionId;
-                    const isSync = numericId && gameState?.synchronizedTransmissions?.has(numericId);
-                    // Debug: Sync state checked
-                    return isSync;
-                  })()}
-                  correctAnswerId={selectedGlyph?.confirmedMeaning || ""}
                 />
               </div>
 
@@ -298,7 +382,6 @@ export default function CombinedInterface() {
                   currentTransmission={gameState?.currentTransmission}
                   gameState={gameState}
                   onNextTransmission={handleNextTransmission}
-                  onSynchronize={handleSynchronize}
                 />
               </div>
             </>
