@@ -1,6 +1,6 @@
 # @firstlight/reusable-components
 
-A library of reusable UI components and design tokens for First Light projects.
+A library of reusable UI components and design tokens for Encounter projects.
 
 ## 🏗️ Structure
 

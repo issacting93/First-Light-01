@@ -1,6 +1,6 @@
-# First Light Monorepo
+# Encounter Monorepo
 
-A pnpm workspaces monorepo for the First Light React application with reusable UI components and design tokens.
+A pnpm workspaces monorepo for the Encounter React application with reusable UI components and design tokens.
 
 ## 🏗️ Structure
 

@@ -1,7 +1,7 @@
 {
   "name": "@firstlight/reusable-components",
   "version": "1.0.0",
-  "description": "Reusable UI components and design tokens for First Light projects",
+  "description": "Reusable UI components and design tokens for Encounter projects",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -87,6 +87,6 @@
     "tailwind",
     "typescript"
   ],
-  "author": "First Light Team",
+  "author": "Encounter Team",
   "license": "MIT"
 } 

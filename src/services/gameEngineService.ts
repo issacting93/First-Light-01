@@ -548,9 +548,15 @@ export function useGameEngine() {
       console.log(`🎯 Marking transmission ${numericId} as synchronized`);
       console.log(`📊 Synchronized transmissions:`, Array.from(newSynchronizedTransmissions));
       
+      // ✅ CRITICAL FIX: Also set completion flag when manually synchronized
+      const isCurrentTransmission = prev.currentTransmission && 
+        (typeof prev.currentTransmission.id === 'string' ? parseInt(prev.currentTransmission.id) : prev.currentTransmission.id) === numericId;
+      
       return {
         ...prev,
-        synchronizedTransmissions: newSynchronizedTransmissions
+        synchronizedTransmissions: newSynchronizedTransmissions,
+        // ✅ Set completion flag if this is the current transmission
+        isTransmissionComplete: isCurrentTransmission ? true : prev.isTransmissionComplete
       };
     });
   }, []);
